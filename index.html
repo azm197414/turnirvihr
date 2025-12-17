@@ -22,7 +22,7 @@
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
             margin-bottom: 20px;
             font-size: 0.85em;
-            min-width: 1400px;
+            min-width: 1600px;
             border: 2px solid #2c3e50;
         }
         .tournament-table th, .tournament-table td {
@@ -356,6 +356,17 @@
             text-align: center;
             font-weight: bold;
         }
+        
+        /* Стили для штрафов */
+        .penalty-cell-small input {
+            width: 60px;
+            font-size: 0.8em;
+            padding: 2px 4px;
+        }
+        .penalty-header {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
     </style>
 </head>
 <body>
@@ -424,61 +435,68 @@
         </div>
         
         <table class="tournament-table" id="tournamentTable">
-            <!-- Основные заголовки -->
-            <tr>
-                <th rowspan="3" class="header-name">Команда</th>
-                <th rowspan="3" class="header-name">Участник</th>
-                <th colspan="3" class="header-name">Литофф</th>
-                <th colspan="2" class="header-name">Квадросим</th>
-                <th colspan="3" class="header-name">Трасса</th>
-                <th rowspan="3" class="header-name">Баллы ЛЗ</th>
-                <th rowspan="3" class="header-name">Баллы КЗ</th>
-            </tr>
-            
-            <tr>
-                <!-- Литофф подзаголовки -->
-                <th class="header-name">Угол</th>
-                <th class="header-name">Время (ММ:СС:МС)</th>
-                <th class="header-name">Баллы</th>
-                <!-- Квадросим подзаголовки -->
-                <th class="header-name">Время (ММ:СС:МС)</th>
-                <th class="header-name">Баллы</th>
-                <!-- Трасса подзаголовки -->
-                <th class="header-name">Кол-во кругов</th>
-                <th class="header-name">Штраф</th>
-                <th class="header-name">Баллы</th>
-            </tr>
-            
-            <tr class="max-min-cell">
-                <!-- Литофф формулы для максимума/минимума -->
-                <td>Максимум<br><span id="maxAngle">0</span></td>
-                <td>Минимум<br><span id="minTimeLz">00:00:00</span></td>
-                <td>Максимум<br><span id="maxScoreLz">0.00</span></td>
-                <!-- Квадросим формулы для минимума -->
-                <td>Минимум<br><span id="minTimeKz">00:00:00</span></td>
-                <td>Максимум<br><span id="maxScoreKz">0.00</span></td>
-                <!-- Трасса формулы для максимума/минимума -->
-                <td>Максимум<br><span id="maxLaps">0</span></td>
-                <td>Минимум<br><span id="minPenalty">0</span></td>
-                <td>Максимум<br><span id="maxScoreTrack">0.00</span></td>
-                <!-- Пустые для выравнивания -->
-                <td></td>
-                <td></td>
-            </tr>
+         <!-- Основные заголовки -->
+<tr>
+    <th rowspan="3" class="header-name">Команда</th>
+    <th rowspan="3" class="header-name">Участник</th>
+    <th colspan="3" class="header-name">Литофф</th>
+    <th colspan="2" class="header-name">Квадросим</th>
+    <th colspan="6" class="header-name">Реальная трасса</th>
+    <th rowspan="3" class="header-name">Баллы ЛЗ</th>
+    <th rowspan="3" class="header-name">Баллы КЗ</th>
+</tr>
+
+<tr>
+    <!-- Литофф подзаголовки -->
+    <th class="header-name">Угол</th>
+    <th class="header-name">Время (ММ:СС:МС)</th>
+    <th class="header-name">Баллы</th>
+    <!-- Квадросим подзаголовки -->
+    <th class="header-name">Время (ММ:СС:МС)</th>
+    <th class="header-name">Баллы</th>
+    <!-- Трасса подзаголовки -->
+    <th class="header-name">Кол-во кругов</th>
+    <th colspan="3" class="penalty-header">Штрафы (кол-во нарушений)</th>
+    <th class="header-name">Сумма штрафов</th>
+    <th class="header-name">Баллы трассы</th>
+</tr>
+
+<tr class="max-min-cell">
+    <!-- Литофф формулы для максимума/минимума -->
+    <td>Максимум<br><span id="maxAngle">0</span></td>
+    <td>Минимум<br><span id="minTimeLz">00:00:00</span></td>
+    <td>Максимум<br><span id="maxScoreLz">0.00</span></td>
+    <!-- Квадросим формулы для минимума -->
+    <td>Минимум<br><span id="minTimeKz">00:00:00</span></td>
+    <td>Максимум<br><span id="maxScoreKz">0.00</span></td>
+    <!-- Трасса формулы для максимума/минимума -->
+    <td>Максимум<br><span id="maxLaps">0</span></td>
+    <td class="penalty-header">Ворота<br>(-5)</td>
+    <td class="penalty-header">Падение<br>(-10)</td>
+    <td class="penalty-header">Переворот<br>(-20)</td>
+    <td>Сумма<br><span id="minPenalty">0</span></td>
+    <td>Максимум<br><span id="maxScoreTrack">0.00</span></td>
+</tr>
+    <!-- Пустая ячейка для выравнивания -->
+    <td style="display: none;"></td>
+</tr>>
             
             <!-- Данные участников будут заполняться JavaScript -->
         </table>
         
         <div class="notes">
-            <p><strong>Формулы расчетов:</strong></p>
+            <p><strong>Формулы расчетов (строго по регламенту):</strong></p>
             <ul>
-                <li><strong>Баллы Литофф:</strong> = (Угол/МАКС_Угол * 70) + (МИН_Время_ЛЗ/Время_ЛЗ * 30)</li>
-                <li><strong>Баллы Квадросим:</strong> = (МИН_Время_КЗ * 100) / Время_КЗ</li>
-                <li><strong>Баллы Трассы:</strong> = (Круги/МАКС_Круги * 100) - Штраф</li>
+                <li><strong>Баллы Литофф:</strong> = (Угол/МАКС_Угол × 70) + (МИН_Время_ЛЗ/Время_ЛЗ × 30)</li>
+                <li><strong>Баллы Квадросим:</strong> = (МИН_Время_КЗ × 100) / Время_КЗ</li>
+                <li><strong>Базовые баллы Трассы:</strong> = (Круги/МАКС_Круги × 100)</li>
+                <li><strong>Сумма штрафов:</strong> = (Ворота × 5) + (Падение × 10) + (Переворот × 20)</li>
+                <li><strong>Баллы Трассы:</strong> = Базовые_баллы − Сумма_штрафов</li>
                 <li><strong>Баллы ЛЗ (личный зачет):</strong> = Баллы_Литофф + Баллы_Квадросим + Баллы_Трассы</li>
                 <li><strong>Баллы КЗ (командный зачет):</strong> = Сумма Баллов_ЛЗ обоих участников команды (одна ячейка на команду)</li>
                 <li><strong>ОЖИДАНИЕ:</strong> показывается при отсутствии данных или делении на ноль</li>
             </ul>
+            <p><strong>Штрафы по регламенту:</strong> Врезание в ворота (-5), Падение (-10), Падение с переворотом (-20)</p>
         </div>
     </div>
 
@@ -488,7 +506,7 @@
         // ========== СИСТЕМА ДОСТУПА ==========
         
         // Пароль для редактирования (можно изменить)
-        const EDIT_PASSWORD = "7197294"; // Замените на свой пароль
+        const EDIT_PASSWORD = "Вихрь2024";
         
         // Ключи для localStorage
         const STORAGE_KEYS = {
@@ -498,7 +516,7 @@
         };
         
         // Текущий режим
-        let currentMode = 'view'; // 'view' или 'edit'
+        let currentMode = 'view';
         
         // Переключение вкладок в форме пароля
         function switchTab(tab) {
@@ -532,7 +550,6 @@
                 passwordError.style.display = 'none';
                 passwordInput.value = '';
                 currentMode = 'edit';
-                // Сохранить сессию редактора
                 localStorage.setItem(STORAGE_KEYS.EDIT_SESSION, 'active');
                 showMainContent();
             } else {
@@ -548,13 +565,8 @@
             document.getElementById('passwordOverlay').style.display = 'none';
             document.getElementById('mainContent').style.display = 'block';
             
-            // Сохранить режим
             localStorage.setItem(STORAGE_KEYS.MODE, currentMode);
-            
-            // Настроить интерфейс в зависимости от режима
             setupInterfaceForMode();
-            
-            // Инициализировать таблицу
             initTable();
         }
         
@@ -569,7 +581,6 @@
             const lockIndicator = document.getElementById('lockIndicator');
             
             if (currentMode === 'view') {
-                // Режим просмотра
                 viewMessage.style.display = 'block';
                 resetButton.disabled = true;
                 testButton.disabled = true;
@@ -577,11 +588,8 @@
                 modeStatus.className = 'mode-status view';
                 modeText.textContent = 'Режим просмотра';
                 lockIndicator.className = 'lock-indicator locked';
-                
-                // Заблокировать поля ввода
                 disableInputFields();
             } else {
-                // Режим редактирования
                 viewMessage.style.display = 'none';
                 resetButton.disabled = false;
                 testButton.disabled = false;
@@ -589,8 +597,6 @@
                 modeStatus.className = 'mode-status edit';
                 modeText.textContent = 'Режим редактирования';
                 lockIndicator.className = 'lock-indicator unlocked';
-                
-                // Разблокировать поля ввода
                 enableInputFields();
             }
         }
@@ -613,7 +619,7 @@
             });
         }
         
-        // Переключиться в режим редактирования (из режима просмотра)
+        // Переключиться в режим редактирования
         function switchToEditMode() {
             document.getElementById('mainContent').style.display = 'none';
             document.getElementById('passwordOverlay').style.display = 'flex';
@@ -624,10 +630,7 @@
         // Выйти из системы
         function logout() {
             if (confirm('Вы уверены, что хотите выйти?')) {
-                // Очистить сессию редактора
                 localStorage.removeItem(STORAGE_KEYS.EDIT_SESSION);
-                
-                // Показать форму выбора режима
                 document.getElementById('mainContent').style.display = 'none';
                 document.getElementById('passwordOverlay').style.display = 'flex';
                 switchTab('view');
@@ -640,14 +643,11 @@
             const savedMode = localStorage.getItem(STORAGE_KEYS.MODE);
             
             if (editSession === 'active') {
-                // Есть активная сессия редактора
                 currentMode = 'edit';
                 return true;
             } else if (savedMode === 'view' || savedMode === 'edit') {
-                // Есть сохраненный режим
                 currentMode = savedMode;
                 if (currentMode === 'edit') {
-                    // Если был режим редактирования, но сессия истекла
                     currentMode = 'view';
                 }
                 return true;
@@ -661,42 +661,36 @@
                 localStorage.removeItem(STORAGE_KEYS.EDIT_SESSION);
                 localStorage.setItem(STORAGE_KEYS.MODE, 'view');
                 
-                // Если сейчас в режиме редактирования, переключить на просмотр
                 if (currentMode === 'edit') {
                     currentMode = 'view';
                     setupInterfaceForMode();
                     showWarning('Сессия редактора истекла. Переключен в режим просмотра.');
                 }
             }
-        }, 4 * 60 * 60 * 1000); // 4 часа
+        }, 4 * 60 * 60 * 1000);
         
         // ========== ИНИЦИАЛИЗАЦИЯ ==========
         
         document.addEventListener('DOMContentLoaded', function() {
-            // Настроить обработчики для формы пароля
             document.getElementById('passwordInput').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
                     enterEditMode();
                 }
             });
             
-            // Проверить сохраненную сессию
             if (checkSavedSession()) {
                 showMainContent();
             } else {
-                // Показать форму выбора режима
                 document.getElementById('passwordOverlay').style.display = 'flex';
                 switchTab('view');
             }
             
-            // Защита от DevTools
             initProtection();
         });
         
         // ========== ЗАЩИТА ОТ ИЗМЕНЕНИЙ ==========
         
         function initProtection() {
-            // 1. Запретить контекстное меню
             document.addEventListener('contextmenu', function(e) {
                 if (currentMode === 'view') {
                     e.preventDefault();
@@ -705,18 +699,16 @@
                 return false;
             });
             
-            // 2. Запретить горячие клавиши разработчика
             document.addEventListener('keydown', function(e) {
-                if (e.keyCode === 123 || // F12
-                    (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) || // Ctrl+Shift+I/J/C
-                    (e.ctrlKey && e.keyCode === 85)) { // Ctrl+U
+                if (e.keyCode === 123 ||
+                    (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) ||
+                    (e.ctrlKey && e.keyCode === 85)) {
                     e.preventDefault();
                     showWarning('Горячие клавиши разработчика отключены!');
                     return false;
                 }
             });
             
-            // 3. Сообщение в консоли
             console.log('%c ⚠️ ТУРНИРНАЯ ТАБЛИЦА "ВИХРЬ" ⚠️ ', 'color: #2c3e50; font-size: 24px; font-weight: bold;');
             console.log('%c Доступ ограничен. Используйте только предоставленные поля ввода. ', 'color: white; background: #3498db; font-size: 16px;');
         }
@@ -755,7 +747,6 @@
             loadFromLocalStorage();
             protectElements();
             
-            // В зависимости от режима настроить поля ввода
             if (currentMode === 'view') {
                 disableInputFields();
             } else {
@@ -766,6 +757,7 @@
         function createTable() {
             const table = document.getElementById('tournamentTable');
             
+            // Удаляем все строки после 3-й (после заголовков)
             while (table.rows.length > 3) {
                 table.deleteRow(3);
             }
@@ -781,6 +773,7 @@
                 }
                 
                 if (isFirstInTeam) {
+                    // ИСПРАВЛЕНИЕ: убрал пустую колонку после team_score
                     row.innerHTML = `
                         <td rowspan="2" class="team-name">"${participant.team}"</td>
                         <td class="participant-name">${participant.name}</td>
@@ -790,7 +783,10 @@
                         <td class="input-cell"><input type="text" id="time_kz_${index}" class="time-input" placeholder="ММ:СС:МС" value="00:00:00"></td>
                         <td class="result-cell" id="score_kz_${index}">ОЖИДАНИЕ</td>
                         <td class="input-cell"><input type="number" id="laps_${index}" min="0" value="0" placeholder="0+"></td>
-                        <td class="input-cell"><input type="number" id="penalty_${index}" min="0" value="0" placeholder="0+"></td>
+                        <td class="input-cell penalty-cell-small"><input type="number" id="penalty_gates_${index}" min="0" value="0" placeholder="0" title="Врезание в ворота (-5 за каждое)"></td>
+                        <td class="input-cell penalty-cell-small"><input type="number" id="penalty_fall_${index}" min="0" value="0" placeholder="0" title="Падение (-10 за каждое)"></td>
+                        <td class="input-cell penalty-cell-small"><input type="number" id="penalty_flip_${index}" min="0" value="0" placeholder="0" title="Переворот (-20 за каждое)"></td>
+                        <td class="calculated-cell" id="total_penalty_${index}">0</td>
                         <td class="result-cell" id="score_track_${index}">ОЖИДАНИЕ</td>
                         <td class="personal-score" id="personal_score_${index}">ОЖИДАНИЕ</td>
                         <td rowspan="2" class="team-score" id="team_score_${participant.teamIndex}">ОЖИДАНИЕ</td>
@@ -804,7 +800,10 @@
                         <td class="input-cell"><input type="text" id="time_kz_${index}" class="time-input" placeholder="ММ:СС:МС" value="00:00:00"></td>
                         <td class="result-cell" id="score_kz_${index}">ОЖИДАНИЕ</td>
                         <td class="input-cell"><input type="number" id="laps_${index}" min="0" value="0" placeholder="0+"></td>
-                        <td class="input-cell"><input type="number" id="penalty_${index}" min="0" value="0" placeholder="0+"></td>
+                        <td class="input-cell penalty-cell-small"><input type="number" id="penalty_gates_${index}" min="0" value="0" placeholder="0" title="Врезание в ворота (-5 за каждое)"></td>
+                        <td class="input-cell penalty-cell-small"><input type="number" id="penalty_fall_${index}" min="0" value="0" placeholder="0" title="Падение (-10 за каждое)"></td>
+                        <td class="input-cell penalty-cell-small"><input type="number" id="penalty_flip_${index}" min="0" value="0" placeholder="0" title="Переворот (-20 за каждое)"></td>
+                        <td class="calculated-cell" id="total_penalty_${index}">0</td>
                         <td class="result-cell" id="score_track_${index}">ОЖИДАНИЕ</td>
                         <td class="personal-score" id="personal_score_${index}">ОЖИДАНИЕ</td>
                     `;
@@ -817,7 +816,8 @@
         function addInputEventListeners() {
             for (let i = 0; i < participants.length; i++) {
                 const inputs = [
-                    `angle_${i}`, `time_lz_${i}`, `time_kz_${i}`, `laps_${i}`, `penalty_${i}`
+                    `angle_${i}`, `time_lz_${i}`, `time_kz_${i}`, `laps_${i}`,
+                    `penalty_gates_${i}`, `penalty_fall_${i}`, `penalty_flip_${i}`
                 ];
                 
                 inputs.forEach(id => {
@@ -857,31 +857,76 @@
                 input.value = '00:00:00';
                 return;
             }
+            
+            // Удаляем все нецифровые символы
             value = value.replace(/[^\d]/g, '');
-            while (value.length < 6) value = '0' + value;
+            
+            // Если пусто или только нули
+            if (value === '' || parseInt(value) === 0) {
+                input.value = '00:00:00';
+                return;
+            }
+            
+            // Дополняем до 6 цифр
+            while (value.length < 6) {
+                value = '0' + value;
+            }
+            
+            // Берем первые 6 цифр
             value = value.substring(0, 6);
+            
+            // Форматируем в ММ:СС:МС
             const minutes = value.substring(0, 2);
             const seconds = value.substring(2, 4);
             const milliseconds = value.substring(4, 6);
+            
+            // Проверяем валидность
+            const minsNum = parseInt(minutes);
+            const secsNum = parseInt(seconds);
+            const msNum = parseInt(milliseconds);
+            
+            if (secsNum >= 60) {
+                alert('Секунды не могут быть больше 59!');
+                input.value = '00:00:00';
+                input.focus();
+                return;
+            }
+            
+            if (msNum >= 100) {
+                alert('Миллисекунды не могут быть больше 99!');
+                input.value = '00:00:00';
+                input.focus();
+                return;
+            }
+            
             input.value = `${minutes}:${seconds}:${milliseconds}`;
         }
         
         function timeToSeconds(timeStr) {
             if (!timeStr || timeStr === '00:00:00') return 0;
+            
             const parts = timeStr.split(':');
             if (parts.length !== 3) return 0;
+            
             const minutes = parseInt(parts[0]) || 0;
             const seconds = parseInt(parts[1]) || 0;
             const milliseconds = parseInt(parts[2]) || 0;
+            
             if (isNaN(minutes) || isNaN(seconds) || isNaN(milliseconds)) return 0;
+            
+            // Проверка на валидность
+            if (seconds >= 60 || milliseconds >= 100) return 0;
+            
             return minutes * 60 + seconds + (milliseconds / 100);
         }
         
         function secondsToTime(seconds) {
             if (seconds <= 0) return '00:00:00';
+            
             const mins = Math.floor(seconds / 60);
             const secs = Math.floor(seconds % 60);
             const ms = Math.round((seconds - Math.floor(seconds)) * 100);
+            
             return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}:${ms.toString().padStart(2, '0')}`;
         }
         
@@ -889,34 +934,53 @@
             const participantsData = [];
             
             for (let i = 0; i < participants.length; i++) {
+                const gates = parseInt(document.getElementById(`penalty_gates_${i}`).value) || 0;
+                const falls = parseInt(document.getElementById(`penalty_fall_${i}`).value) || 0;
+                const flips = parseInt(document.getElementById(`penalty_flip_${i}`).value) || 0;
+                const totalPenalty = (gates * 5) + (falls * 10) + (flips * 20);
+                
                 participantsData.push({
                     index: i,
                     angle: parseFloat(document.getElementById(`angle_${i}`).value) || 0,
                     timeLz: timeToSeconds(document.getElementById(`time_lz_${i}`).value),
                     timeKz: timeToSeconds(document.getElementById(`time_kz_${i}`).value),
                     laps: parseFloat(document.getElementById(`laps_${i}`).value) || 0,
-                    penalty: parseFloat(document.getElementById(`penalty_${i}`).value) || 0,
+                    gates: gates,
+                    falls: falls,
+                    flips: flips,
+                    totalPenalty: totalPenalty,
                     teamIndex: participants[i].teamIndex
                 });
             }
             
-            const maxAngle = Math.max(...participantsData.filter(p => p.angle > 0).map(p => p.angle));
-            const minTimeLz = Math.min(...participantsData.filter(p => p.timeLz > 0).map(p => p.timeLz));
-            const minTimeKz = Math.min(...participantsData.filter(p => p.timeKz > 0).map(p => p.timeKz));
-            const maxLaps = Math.max(...participantsData.filter(p => p.laps > 0).map(p => p.laps));
-            const minPenalty = Math.min(...participantsData.filter(p => p.penalty > 0).map(p => p.penalty));
+            // Рассчитываем максимумы и минимумы только для положительных значений
+            const validAngles = participantsData.filter(p => p.angle > 0).map(p => p.angle);
+            const validTimeLz = participantsData.filter(p => p.timeLz > 0).map(p => p.timeLz);
+            const validTimeKz = participantsData.filter(p => p.timeKz > 0).map(p => p.timeKz);
+            const validLaps = participantsData.filter(p => p.laps > 0).map(p => p.laps);
+            const validPenalties = participantsData.filter(p => p.totalPenalty > 0).map(p => p.totalPenalty);
             
-            document.getElementById('maxAngle').textContent = maxAngle > 0 ? maxAngle : '0';
+            const maxAngle = validAngles.length > 0 ? Math.max(...validAngles) : 0;
+            const minTimeLz = validTimeLz.length > 0 ? Math.min(...validTimeLz) : 0;
+            const minTimeKz = validTimeKz.length > 0 ? Math.min(...validTimeKz) : 0;
+            const maxLaps = validLaps.length > 0 ? Math.max(...validLaps) : 0;
+            const minTotalPenalty = validPenalties.length > 0 ? Math.min(...validPenalties) : 0;
+            
+            document.getElementById('maxAngle').textContent = maxAngle;
             document.getElementById('minTimeLz').textContent = minTimeLz > 0 ? secondsToTime(minTimeLz) : '00:00:00';
             document.getElementById('minTimeKz').textContent = minTimeKz > 0 ? secondsToTime(minTimeKz) : '00:00:00';
-            document.getElementById('maxLaps').textContent = maxLaps > 0 ? maxLaps : '0';
-            document.getElementById('minPenalty').textContent = minPenalty > 0 ? minPenalty : '0';
+            document.getElementById('maxLaps').textContent = maxLaps;
+            document.getElementById('minPenalty').textContent = minTotalPenalty;
             
             let maxScoreLz = 0, maxScoreKz = 0, maxScoreTrack = 0;
             
             participantsData.forEach(data => {
                 const i = data.index;
                 
+                // Обновляем сумму штрафов
+                document.getElementById(`total_penalty_${i}`).textContent = data.totalPenalty;
+                
+                // Расчет баллов Литофф
                 let scoreLz = "ОЖИДАНИЕ";
                 if (maxAngle > 0 && data.angle > 0 && minTimeLz > 0 && data.timeLz > 0) {
                     const calculated = ((data.angle / maxAngle) * 70) + ((minTimeLz / data.timeLz) * 30);
@@ -924,6 +988,7 @@
                     maxScoreLz = Math.max(maxScoreLz, calculated);
                 }
                 
+                // Расчет баллов Квадросим
                 let scoreKz = "ОЖИДАНИЕ";
                 if (minTimeKz > 0 && data.timeKz > 0) {
                     const calculated = (minTimeKz * 100) / data.timeKz;
@@ -931,13 +996,15 @@
                     maxScoreKz = Math.max(maxScoreKz, calculated);
                 }
                 
+                // Расчет баллов Трассы
                 let scoreTrack = "ОЖИДАНИЕ";
                 if (maxLaps > 0 && data.laps > 0) {
-                    const calculated = ((data.laps / maxLaps) * 100) - data.penalty;
+                    const calculated = ((data.laps / maxLaps) * 100) - data.totalPenalty;
                     scoreTrack = calculated > 0 ? calculated.toFixed(2) : "0.00";
                     maxScoreTrack = Math.max(maxScoreTrack, calculated > 0 ? calculated : 0);
                 }
                 
+                // Личный зачет
                 let personalScore = "ОЖИДАНИЕ";
                 if (scoreLz !== "ОЖИДАНИЕ" && scoreKz !== "ОЖИДАНИЕ" && scoreTrack !== "ОЖИДАНИЕ") {
                     personalScore = (parseFloat(scoreLz) + parseFloat(scoreKz) + parseFloat(scoreTrack)).toFixed(2);
@@ -945,31 +1012,39 @@
                 
                 data.personalScore = personalScore === "ОЖИДАНИЕ" ? 0 : parseFloat(personalScore);
                 
+                // Обновляем ячейки
                 document.getElementById(`score_lz_${i}`).textContent = scoreLz;
                 document.getElementById(`score_lz_${i}`).className = scoreLz === "ОЖИДАНИЕ" ? "error-cell" : "result-cell";
+                
                 document.getElementById(`score_kz_${i}`).textContent = scoreKz;
                 document.getElementById(`score_kz_${i}`).className = scoreKz === "ОЖИДАНИЕ" ? "error-cell" : "result-cell";
+                
                 document.getElementById(`score_track_${i}`).textContent = scoreTrack;
                 document.getElementById(`score_track_${i}`).className = scoreTrack === "ОЖИДАНИЕ" ? "error-cell" : "result-cell";
+                
                 document.getElementById(`personal_score_${i}`).textContent = personalScore;
                 document.getElementById(`personal_score_${i}`).className = personalScore === "ОЖИДАНИЕ" ? "error-cell" : "personal-score";
             });
             
+            // Обновляем максимумы в заголовках
             document.getElementById('maxScoreLz').textContent = maxScoreLz.toFixed(2);
             document.getElementById('maxScoreKz').textContent = maxScoreKz.toFixed(2);
             document.getElementById('maxScoreTrack').textContent = maxScoreTrack.toFixed(2);
             
+            // Расчет командных баллов
             const teamScores = {};
             participantsData.forEach(data => {
                 if (!teamScores[data.teamIndex]) teamScores[data.teamIndex] = 0;
                 teamScores[data.teamIndex] += data.personalScore;
             });
             
+            // Обновляем командные баллы
             for (const [teamIndex, teamScore] of Object.entries(teamScores)) {
                 document.getElementById(`team_score_${teamIndex}`).textContent = teamScore.toFixed(2);
                 document.getElementById(`team_score_${teamIndex}`).className = "team-score";
             }
             
+            // Для команд без данных показываем ОЖИДАНИЕ
             for (let i = 0; i < 5; i++) {
                 if (!teamScores[i]) {
                     document.getElementById(`team_score_${i}`).textContent = "ОЖИДАНИЕ";
@@ -986,7 +1061,9 @@
                     timeLz: document.getElementById(`time_lz_${i}`).value,
                     timeKz: document.getElementById(`time_kz_${i}`).value,
                     laps: document.getElementById(`laps_${i}`).value,
-                    penalty: document.getElementById(`penalty_${i}`).value
+                    penalty_gates: document.getElementById(`penalty_gates_${i}`).value,
+                    penalty_fall: document.getElementById(`penalty_fall_${i}`).value,
+                    penalty_flip: document.getElementById(`penalty_flip_${i}`).value
                 };
             }
             localStorage.setItem(STORAGE_KEYS.DATA, JSON.stringify(data));
@@ -1004,7 +1081,9 @@
                             document.getElementById(`time_lz_${i}`).value = p.timeLz || '00:00:00';
                             document.getElementById(`time_kz_${i}`).value = p.timeKz || '00:00:00';
                             document.getElementById(`laps_${i}`).value = p.laps || 0;
-                            document.getElementById(`penalty_${i}`).value = p.penalty || 0;
+                            document.getElementById(`penalty_gates_${i}`).value = p.penalty_gates || 0;
+                            document.getElementById(`penalty_fall_${i}`).value = p.penalty_fall || 0;
+                            document.getElementById(`penalty_flip_${i}`).value = p.penalty_flip || 0;
                         }
                     }
                     calculateAll();
@@ -1023,31 +1102,44 @@
             if (confirm('Вы уверены, что хотите сбросить все данные? Все введенные значения будут удалены.')) {
                 for (let i = 0; i < participants.length; i++) {
                     document.getElementById(`angle_${i}`).value = 0;
-                    document.getElementById(`time_lz_${i}`).value = '00:00:00';
-                    document.getElementById(`time_kz_${i}`).value = '00:00:00';
-                    document.getElementById(`laps_${i}`).value = 0;
-                    document.getElementById(`penalty_${i}`).value = 0;
+                    document.getElementById(`time_lz_${index}`).value = '00:00:00';
+                    document.getElementById(`time_kz_${index}`).value = '00:00:00';
+                    document.getElementById(`laps_${index}`).value = 0;
+                    document.getElementById(`penalty_gates_${index}`).value = 0;
+                    document.getElementById(`penalty_fall_${index}`).value = 0;
+                    document.getElementById(`penalty_flip_${index}`).value = 0;
                     
-                    ['score_lz_', 'score_kz_', 'score_track_', 'personal_score_'].forEach(prefix => {
-                        document.getElementById(`${prefix}${i}`).textContent = 'ОЖИДАНИЕ';
-                        document.getElementById(`${prefix}${i}`).className = 'error-cell';
-                    });
+                    // Сбрасываем расчетные ячейки
+                    document.getElementById(`score_lz_${i}`).textContent = 'ОЖИДАНИЕ';
+                    document.getElementById(`score_lz_${i}`).className = 'error-cell';
+                    
+                    document.getElementById(`score_kz_${i}`).textContent = 'ОЖИДАНИЕ';
+                    document.getElementById(`score_kz_${i}`).className = 'error-cell';
+                    
+                    document.getElementById(`score_track_${i}`).textContent = 'ОЖИДАНИЕ';
+                    document.getElementById(`score_track_${i}`).className = 'error-cell';
+                    
+                    document.getElementById(`personal_score_${i}`).textContent = 'ОЖИДАНИЕ';
+                    document.getElementById(`personal_score_${i}`).className = 'error-cell';
+                    
+                    document.getElementById(`total_penalty_${i}`).textContent = '0';
                 }
                 
+                // Сбрасываем командные баллы
                 for (let i = 0; i < 5; i++) {
                     document.getElementById(`team_score_${i}`).textContent = 'ОЖИДАНИЕ';
                     document.getElementById(`team_score_${i}`).className = 'error-cell';
                 }
                 
-                ['maxAngle', 'maxScoreLz', 'maxScoreKz', 'maxLaps', 'maxScoreTrack'].forEach(id => {
-                    document.getElementById(id).textContent = id === 'maxAngle' || id === 'maxLaps' ? '0' : '0.00';
-                });
-                
-                ['minTimeLz', 'minTimeKz'].forEach(id => {
-                    document.getElementById(id).textContent = '00:00:00';
-                });
-                
+                // Сбрасываем статистику в заголовках
+                document.getElementById('maxAngle').textContent = '0';
+                document.getElementById('minTimeLz').textContent = '00:00:00';
+                document.getElementById('maxScoreLz').textContent = '0.00';
+                document.getElementById('minTimeKz').textContent = '00:00:00';
+                document.getElementById('maxScoreKz').textContent = '0.00';
+                document.getElementById('maxLaps').textContent = '0';
                 document.getElementById('minPenalty').textContent = '0';
+                document.getElementById('maxScoreTrack').textContent = '0.00';
                 
                 localStorage.removeItem(STORAGE_KEYS.DATA);
                 alert('Все данные сброшены!');
@@ -1061,16 +1153,16 @@
             }
             
             const testData = [
-                { angle: 51, timeLz: '00:45:00', timeKz: '00:00:00', laps: 0, penalty: 0 },
-                { angle: 63, timeLz: '00:53:00', timeKz: '00:00:00', laps: 0, penalty: 0 },
-                { angle: 0, timeLz: '00:00:00', timeKz: '00:00:00', laps: 0, penalty: 0 },
-                { angle: 0, timeLz: '00:00:00', timeKz: '00:00:00', laps: 0, penalty: 0 },
-                { angle: 0, timeLz: '00:00:00', timeKz: '00:00:00', laps: 0, penalty: 0 },
-                { angle: 0, timeLz: '00:00:00', timeKz: '00:00:00', laps: 0, penalty: 0 },
-                { angle: 45, timeLz: '00:48:30', timeKz: '01:30:45', laps: 10, penalty: 2 },
-                { angle: 38, timeLz: '00:52:15', timeKz: '01:35:20', laps: 8, penalty: 1 },
-                { angle: 55, timeLz: '00:42:10', timeKz: '01:25:30', laps: 12, penalty: 3 },
-                { angle: 42, timeLz: '00:55:40', timeKz: '01:40:15', laps: 9, penalty: 2 }
+                { angle: 51, timeLz: '00:45:00', timeKz: '01:15:30', laps: 8, gates: 1, falls: 0, flips: 0 },
+                { angle: 63, timeLz: '00:53:00', timeKz: '01:20:45', laps: 10, gates: 2, falls: 1, flips: 0 },
+                { angle: 45, timeLz: '00:48:30', timeKz: '01:30:45', laps: 12, gates: 0, falls: 1, flips: 0 },
+                { angle: 38, timeLz: '00:52:15', timeKz: '01:35:20', laps: 9, gates: 1, falls: 0, flips: 1 },
+                { angle: 55, timeLz: '00:42:10', timeKz: '01:25:30', laps: 11, gates: 3, falls: 0, flips: 0 },
+                { angle: 42, timeLz: '00:55:40', timeKz: '01:40:15', laps: 7, gates: 0, falls: 2, flips: 0 },
+                { angle: 60, timeLz: '00:46:20', timeKz: '01:18:50', laps: 13, gates: 1, falls: 1, flips: 0 },
+                { angle: 35, timeLz: '00:57:10', timeKz: '01:45:30', laps: 6, gates: 2, falls: 0, flips: 1 },
+                { angle: 48, timeLz: '00:49:45', timeKz: '01:28:15', laps: 10, gates: 0, falls: 0, flips: 0 },
+                { angle: 40, timeLz: '00:54:20', timeKz: '01:38:40', laps: 8, gates: 1, falls: 1, flips: 0 }
             ];
             
             for (let i = 0; i < participants.length; i++) {
@@ -1079,7 +1171,9 @@
                 document.getElementById(`time_lz_${i}`).value = data.timeLz;
                 document.getElementById(`time_kz_${i}`).value = data.timeKz;
                 document.getElementById(`laps_${i}`).value = data.laps;
-                document.getElementById(`penalty_${i}`).value = data.penalty;
+                document.getElementById(`penalty_gates_${i}`).value = data.gates;
+                document.getElementById(`penalty_fall_${i}`).value = data.falls;
+                document.getElementById(`penalty_flip_${i}`).value = data.flips;
             }
             
             calculateAll();
@@ -1090,9 +1184,9 @@
         function exportToExcel() {
             let csvContent = "data:text/csv;charset=utf-8,";
             const headers = [
-                "Команда", "Участник", "Угол (Литофф)", "Время ЛЗ (ММ:СС:МС)", "Баллы ЛЗ",
-                "Время КЗ (ММ:СС:МС)", "Баллы КЗ", "Круги (Трасса)", "Штраф (Трасса)",
-                "Баллы Трассы", "Баллы ЛЗ (личный)", "Баллы КЗ (командный)"
+                "Команда", "Участник", "Угол (Литофф)", "Время ЛЗ", "Баллы ЛЗ",
+                "Время КЗ", "Баллы КЗ", "Круги", "Штрафы: Ворота", "Штрафы: Падение", "Штрафы: Переворот",
+                "Сумма штрафов", "Баллы Трассы", "Баллы ЛЗ", "Баллы КЗ"
             ];
             
             csvContent += headers.join(";") + "\n";
@@ -1115,7 +1209,10 @@
                     document.getElementById(`time_kz_${i}`).value,
                     document.getElementById(`score_kz_${i}`).textContent,
                     document.getElementById(`laps_${i}`).value,
-                    document.getElementById(`penalty_${i}`).value,
+                    document.getElementById(`penalty_gates_${i}`).value,
+                    document.getElementById(`penalty_fall_${i}`).value,
+                    document.getElementById(`penalty_flip_${i}`).value,
+                    document.getElementById(`total_penalty_${i}`).textContent,
                     document.getElementById(`score_track_${i}`).textContent,
                     document.getElementById(`personal_score_${i}`).textContent,
                     isFirstInTeam ? teamScore : ""
@@ -1124,14 +1221,15 @@
                 csvContent += row.join(";") + "\n";
             }
             
-            csvContent += "\n;;;Статистика;;;;;;;;\n";
-            csvContent += `Максимальный угол;${document.getElementById('maxAngle').textContent};;;;;;;;\n`;
-            csvContent += `Минимальное время ЛЗ;${document.getElementById('minTimeLz').textContent};;;;;;;;\n`;
-            csvContent += `Максимальные баллы ЛЗ;${document.getElementById('maxScoreLz').textContent};;;;;;;;\n`;
-            csvContent += `Минимальное время КЗ;${document.getElementById('minTimeKz').textContent};;;;;;;;\n`;
-            csvContent += `Максимальные баллы КЗ;${document.getElementById('maxScoreKz').textContent};;;;;;;;\n`;
-            csvContent += `Максимальные круги;${document.getElementById('maxLaps').textContent};;;;;;;;\n`;
-            csvContent += `Максимальные баллы трассы;${document.getElementById('maxScoreTrack').textContent};;;;;;;;`;
+            csvContent += "\n;;;Статистика;;;;;;;;;;;;\n";
+            csvContent += `Максимальный угол;${document.getElementById('maxAngle').textContent};;;;;;;;;;;\n`;
+            csvContent += `Минимальное время ЛЗ;${document.getElementById('minTimeLz').textContent};;;;;;;;;;;\n`;
+            csvContent += `Максимальные баллы ЛЗ;${document.getElementById('maxScoreLz').textContent};;;;;;;;;;;\n`;
+            csvContent += `Минимальное время КЗ;${document.getElementById('minTimeKz').textContent};;;;;;;;;;;\n`;
+            csvContent += `Максимальные баллы КЗ;${document.getElementById('maxScoreKz').textContent};;;;;;;;;;;\n`;
+            csvContent += `Максимальные круги;${document.getElementById('maxLaps').textContent};;;;;;;;;;;\n`;
+            csvContent += `Минимальная сумма штрафов;${document.getElementById('minPenalty').textContent};;;;;;;;;;;\n`;
+            csvContent += `Максимальные баллы трассы;${document.getElementById('maxScoreTrack').textContent};;;;;;;;;;;`;
             
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
@@ -1145,12 +1243,11 @@
             alert('Таблица экспортирована в CSV файл!');
         }
         
-        // Автоматический пересчет каждую минуту (для режима просмотра)
         setInterval(() => {
             if (currentMode === 'view') {
                 calculateAll();
             }
-        }, 60000); // 1 минута
+        }, 60000);
     </script>
 </body>
 </html>
