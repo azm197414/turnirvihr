@@ -38,13 +38,6 @@
             font-weight: bold;
             border: 2px solid #34495e;
         }
-        .title-row {
-            background-color: #2c3e50;
-            color: white;
-            font-size: 1.1em;
-            font-weight: bold;
-            border: 2px solid #2c3e50;
-        }
         .input-cell {
             background-color: #fff;
         }
@@ -168,21 +161,132 @@
             border-radius: 5px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-        .section-divider {
-            border-right: 3px solid #3498db !important;
-        }
-        .category-header {
-            background-color: #34495e;
-            font-weight: bold;
-        }
         .max-min-cell {
             background-color: #d6dbdf;
             font-weight: bold;
         }
+        
+        /* Стили защиты */
+        .protected {
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+        .warning-message {
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #e74c3c;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            z-index: 10000;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            animation: fadeIn 0.3s;
+        }
+        
+        /* Стили для формы пароля */
+        .password-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(44, 62, 80, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .password-form {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            text-align: center;
+            min-width: 300px;
+        }
+        .password-form h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        .password-input {
+            width: 100%;
+            padding: 12px;
+            margin: 15px 0;
+            border: 2px solid #3498db;
+            border-radius: 5px;
+            font-size: 16px;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+        .password-input:focus {
+            outline: none;
+            border-color: #2980b9;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+        }
+        .password-submit {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s;
+        }
+        .password-submit:hover {
+            background: #2980b9;
+        }
+        .password-error {
+            color: #e74c3c;
+            margin-top: 10px;
+            font-size: 14px;
+            display: none;
+        }
+        .password-hint {
+            color: #7f8c8d;
+            font-size: 12px;
+            margin-top: 15px;
+            font-style: italic;
+        }
+        
+        /* Блокировка интерфейса */
+        .locked {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-20px); }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
+    <!-- Форма ввода пароля -->
+    <div id="passwordOverlay" class="password-overlay">
+        <div class="password-form">
+            <h2>ДОСТУП К ТУРНИРНОЙ ТАБЛИЦЕ</h2>
+            <p>Для работы с таблицей введите пароль:</p>
+            <input type="password" id="passwordInput" class="password-input" placeholder="Введите пароль" autocomplete="off">
+            <div id="passwordError" class="password-error">Неверный пароль. Попробуйте снова.</div>
+            <button id="passwordSubmit" class="password-submit">Войти</button>
+            <div class="password-hint">Пароль предоставляет организатор турнира</div>
+        </div>
+    </div>
+    
+    <!-- Основной контент (изначально скрыт) -->
+    <div id="mainContent" class="container" style="display: none;">
         <div class="main-title">
             ТАБЛИЦА БОЛЬШОГО ЗИМНЕГО ТУРНИРА КЛУБА ПИЛОТОВ БПЛА "ВИХРЬ"
         </div>
@@ -192,6 +296,7 @@
             <button onclick="resetAll()" class="reset">Сбросить все данные</button>
             <button onclick="fillTestData()" class="test">Заполнить тестовые данные</button>
             <button onclick="exportToExcel()" class="export">Экспорт в CSV</button>
+            <button onclick="logout()" class="reset" style="margin-left: auto;">Выйти</button>
         </div>
         
         <table class="tournament-table" id="tournamentTable">
@@ -199,14 +304,14 @@
             <tr>
                 <th rowspan="3" class="header-name">Команда</th>
                 <th rowspan="3" class="header-name">Участник</th>
-                <th colspan="3" class="header-name category-header">Литофф</th>
-                <th colspan="2" class="header-name category-header">Квадросим</th>
-                <th colspan="3" class="header-name category-header">Трасса</th>
+                <th colspan="3" class="header-name">Литофф</th>
+                <th colspan="2" class="header-name">Квадросим</th>
+                <th colspan="3" class="header-name">Трасса</th>
                 <th rowspan="3" class="header-name">Баллы ЛЗ</th>
                 <th rowspan="3" class="header-name">Баллы КЗ</th>
             </tr>
             
-            <tr class="category-header">
+            <tr>
                 <!-- Литофф подзаголовки -->
                 <th class="header-name">Угол</th>
                 <th class="header-name">Время (ММ:СС:МС)</th>
@@ -253,146 +358,232 @@
         </div>
     </div>
 
+    <div id="warningMessage" class="warning-message"></div>
+
     <script>
-        // Данные участников
+        // ========== СИСТЕМА ПАРОЛЯ ==========
+        
+        // Пароль для доступа (можно изменить)
+        const ACCESS_PASSWORD = "ASDF2025"; // Замените на свой пароль
+        
+        // Ключи для localStorage
+        const STORAGE_KEYS = {
+            PASSWORD: 'турнир_пароль',
+            DATA: 'турнир_данные',
+            SESSION: 'турнир_сессия'
+        };
+        
+        // Проверка авторизации
+        function checkAuth() {
+            const session = localStorage.getItem(STORAGE_KEYS.SESSION);
+            const savedPassword = localStorage.getItem(STORAGE_KEYS.PASSWORD);
+            
+            // Если есть активная сессия или сохраненный пароль
+            if (session === 'active' || savedPassword === hashPassword(ACCESS_PASSWORD)) {
+                showMainContent();
+                return true;
+            }
+            return false;
+        }
+        
+        // Хеширование пароля (простое)
+        function hashPassword(password) {
+            return btoa(encodeURIComponent(password + 'salt_вихрь'));
+        }
+        
+        // Показать основное содержимое
+        function showMainContent() {
+            document.getElementById('passwordOverlay').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+            // Установить активную сессию
+            localStorage.setItem(STORAGE_KEYS.SESSION, 'active');
+            // Сохранить пароль для будущих сессий
+            localStorage.setItem(STORAGE_KEYS.PASSWORD, hashPassword(ACCESS_PASSWORD));
+            // Инициализировать таблицу
+            initTable();
+        }
+        
+        // Вход по паролю
+        function login() {
+            const passwordInput = document.getElementById('passwordInput');
+            const passwordError = document.getElementById('passwordError');
+            const enteredPassword = passwordInput.value.trim();
+            
+            if (enteredPassword === ACCESS_PASSWORD) {
+                passwordError.style.display = 'none';
+                passwordInput.value = '';
+                showMainContent();
+            } else {
+                passwordError.style.display = 'block';
+                passwordInput.value = '';
+                passwordInput.focus();
+                // Вибрация при ошибке (если поддерживается)
+                if (navigator.vibrate) {
+                    navigator.vibrate(200);
+                }
+            }
+        }
+        
+        // Выход
+        function logout() {
+            if (confirm('Вы уверены, что хотите выйти? Данные будут сохранены.')) {
+                localStorage.removeItem(STORAGE_KEYS.SESSION);
+                document.getElementById('mainContent').style.display = 'none';
+                document.getElementById('passwordOverlay').style.display = 'flex';
+                document.getElementById('passwordInput').focus();
+            }
+        }
+        
+        // Автовыход через 8 часов
+        setTimeout(() => {
+            if (localStorage.getItem(STORAGE_KEYS.SESSION) === 'active') {
+                localStorage.removeItem(STORAGE_KEYS.SESSION);
+                alert('Сессия истекла. Пожалуйста, войдите снова.');
+                location.reload();
+            }
+        }, 8 * 60 * 60 * 1000); // 8 часов
+        
+        // ========== ИНИЦИАЛИЗАЦИЯ ==========
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Настроить обработчики для формы пароля
+            document.getElementById('passwordSubmit').addEventListener('click', login);
+            document.getElementById('passwordInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    login();
+                }
+            });
+            
+            // Фокус на поле пароля при загрузке
+            document.getElementById('passwordInput').focus();
+            
+            // Проверить авторизацию
+            if (!checkAuth()) {
+                // Показать форму пароля
+                document.getElementById('passwordOverlay').style.display = 'flex';
+            }
+            
+            // Защита от DevTools
+            initProtection();
+        });
+        
+        // ========== ЗАЩИТА ОТ ИЗМЕНЕНИЙ ==========
+        
+        function initProtection() {
+            // 1. Запретить контекстное меню
+            document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                showWarning('Правый клик отключен. Используйте кнопки управления.');
+                return false;
+            });
+            
+            // 2. Запретить горячие клавиши разработчика
+            document.addEventListener('keydown', function(e) {
+                if (e.keyCode === 123 || // F12
+                    (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) || // Ctrl+Shift+I/J/C
+                    (e.ctrlKey && e.keyCode === 85)) { // Ctrl+U
+                    e.preventDefault();
+                    showWarning('Горячие клавиши разработчика отключены!');
+                    return false;
+                }
+            });
+            
+            // 3. Сообщение в консоли
+            console.log('%c ⚠️ ДОСТУП ОГРАНИЧЕН ⚠️ ', 'color: red; font-size: 24px; font-weight: bold;');
+            console.log('%c Изменение кода таблицы запрещено! ', 'color: white; background: red; font-size: 16px;');
+            console.log('%c Используйте только поля ввода для изменения данных. ', 'color: #2c3e50; font-size: 14px;');
+        }
+        
+        function showWarning(message) {
+            const warning = document.getElementById('warningMessage');
+            warning.textContent = message;
+            warning.style.display = 'block';
+            
+            setTimeout(() => {
+                warning.style.animation = 'fadeOut 0.3s';
+                setTimeout(() => {
+                    warning.style.display = 'none';
+                    warning.style.animation = '';
+                }, 300);
+            }, 3000);
+        }
+        
+        // ========== ДАННЫЕ И ЛОГИКА ТАБЛИЦЫ ==========
+        
         const participants = [
-            // Команда "Интенсив"
             { team: "Интенсив", name: "Ксения Л.", id: 1, teamIndex: 0 },
             { team: "Интенсив", name: "Святослав Е.", id: 2, teamIndex: 0 },
-            // Команда "Прорыв"
             { team: "Прорыв", name: "Никита У.", id: 3, teamIndex: 1 },
             { team: "Прорыв", name: "Варя А.", id: 4, teamIndex: 1 },
-            // Команда "Альфа"
             { team: "Альфа", name: "Дмитрий В.", id: 5, teamIndex: 2 },
             { team: "Альфа", name: "Иван Ф.", id: 6, teamIndex: 2 },
-            // Команда "Стабильность"
             { team: "Стабильность", name: "Савелий С.", id: 7, teamIndex: 3 },
             { team: "Стабильность", name: "Богдан Е.", id: 8, teamIndex: 3 },
-            // Команда "Мотивация"
             { team: "Мотивация", name: "Артем П.", id: 9, teamIndex: 4 },
             { team: "Мотивация", name: "Данила Л.", id: 10, teamIndex: 4 }
         ];
-
-        // Создаем таблицу с участниками
+        
+        function initTable() {
+            createTable();
+            loadFromLocalStorage();
+            protectElements();
+        }
+        
         function createTable() {
             const table = document.getElementById('tournamentTable');
             
-            // Удаляем существующие строки с данными (кроме заголовков)
             while (table.rows.length > 3) {
                 table.deleteRow(3);
             }
             
-            // Создаем массив для хранения индексов первых участников команд
-            const firstParticipantIndexes = [];
-            
-            // Добавляем строки для каждого участника
             participants.forEach((participant, index) => {
                 const row = table.insertRow();
                 const isFirstInTeam = index === 0 || participants[index-1].team !== participant.team;
                 
                 if (isFirstInTeam) {
                     row.className = 'team-header';
-                    firstParticipantIndexes.push(index); // Сохраняем индекс первого участника команды
                 } else {
                     row.className = 'participant-row';
                 }
                 
-                // Заполняем ячейки
                 if (isFirstInTeam) {
                     row.innerHTML = `
                         <td rowspan="2" class="team-name">"${participant.team}"</td>
                         <td class="participant-name">${participant.name}</td>
-                        
-                        <!-- Литофф: Угол -->
                         <td class="input-cell"><input type="number" id="angle_${index}" min="0" max="90" value="0" step="1" placeholder="0-90°"></td>
-                        
-                        <!-- Литофф: Время с миллисекундами -->
-                        <td class="input-cell">
-                            <input type="text" id="time_lz_${index}" class="time-input" placeholder="ММ:СС:МС" value="00:00:00">
-                        </td>
-                        
-                        <!-- Литофф: Баллы -->
+                        <td class="input-cell"><input type="text" id="time_lz_${index}" class="time-input" placeholder="ММ:СС:МС" value="00:00:00"></td>
                         <td class="result-cell" id="score_lz_${index}">ОЖИДАНИЕ</td>
-                        
-                        <!-- Квадросим: Время с миллисекундами -->
-                        <td class="input-cell">
-                            <input type="text" id="time_kz_${index}" class="time-input" placeholder="ММ:СС:МС" value="00:00:00">
-                        </td>
-                        
-                        <!-- Квадросим: Баллы -->
+                        <td class="input-cell"><input type="text" id="time_kz_${index}" class="time-input" placeholder="ММ:СС:МС" value="00:00:00"></td>
                         <td class="result-cell" id="score_kz_${index}">ОЖИДАНИЕ</td>
-                        
-                        <!-- Трасса: Круги -->
                         <td class="input-cell"><input type="number" id="laps_${index}" min="0" value="0" placeholder="0+"></td>
-                        
-                        <!-- Трасса: Штраф -->
                         <td class="input-cell"><input type="number" id="penalty_${index}" min="0" value="0" placeholder="0+"></td>
-                        
-                        <!-- Трасса: Баллы -->
                         <td class="result-cell" id="score_track_${index}">ОЖИДАНИЕ</td>
-                        
-                        <!-- Баллы ЛЗ (личный зачет) -->
                         <td class="personal-score" id="personal_score_${index}">ОЖИДАНИЕ</td>
-                        
-                        <!-- Баллы КЗ (командный зачет) - только для первого участника -->
                         <td rowspan="2" class="team-score" id="team_score_${participant.teamIndex}">ОЖИДАНИЕ</td>
                     `;
                 } else {
                     row.innerHTML = `
                         <td class="participant-name">${participant.name}</td>
-                        
-                        <!-- Литофф: Угол -->
                         <td class="input-cell"><input type="number" id="angle_${index}" min="0" max="90" value="0" step="1" placeholder="0-90°"></td>
-                        
-                        <!-- Литофф: Время с миллисекундами -->
-                        <td class="input-cell">
-                            <input type="text" id="time_lz_${index}" class="time-input" placeholder="ММ:СС:МС" value="00:00:00">
-                        </td>
-                        
-                        <!-- Литофф: Баллы -->
+                        <td class="input-cell"><input type="text" id="time_lz_${index}" class="time-input" placeholder="ММ:СС:МС" value="00:00:00"></td>
                         <td class="result-cell" id="score_lz_${index}">ОЖИДАНИЕ</td>
-                        
-                        <!-- Квадросим: Время с миллисекундами -->
-                        <td class="input-cell">
-                            <input type="text" id="time_kz_${index}" class="time-input" placeholder="ММ:СС:МС" value="00:00:00">
-                        </td>
-                        
-                        <!-- Квадросим: Баллы -->
+                        <td class="input-cell"><input type="text" id="time_kz_${index}" class="time-input" placeholder="ММ:СС:МС" value="00:00:00"></td>
                         <td class="result-cell" id="score_kz_${index}">ОЖИДАНИЕ</td>
-                        
-                        <!-- Трасса: Круги -->
                         <td class="input-cell"><input type="number" id="laps_${index}" min="0" value="0" placeholder="0+"></td>
-                        
-                        <!-- Трасса: Штраф -->
                         <td class="input-cell"><input type="number" id="penalty_${index}" min="0" value="0" placeholder="0+"></td>
-                        
-                        <!-- Трасса: Баллы -->
                         <td class="result-cell" id="score_track_${index}">ОЖИДАНИЕ</td>
-                        
-                        <!-- Баллы ЛЗ (личный зачет) -->
                         <td class="personal-score" id="personal_score_${index}">ОЖИДАНИЕ</td>
-                        <!-- Баллы КЗ (командный зачет) - для второго участника ячейка объединена -->
                     `;
                 }
             });
             
-            // Сохраняем индексы первых участников команд для дальнейшего использования
-            window.firstParticipantIndexes = firstParticipantIndexes;
-            
-            // Добавляем обработчики событий
             addInputEventListeners();
         }
         
-        // Добавляем обработчики событий для полей ввода
         function addInputEventListeners() {
             for (let i = 0; i < participants.length; i++) {
-                // Добавляем обработчики для всех полей ввода
                 const inputs = [
-                    `angle_${i}`,
-                    `time_lz_${i}`,
-                    `time_kz_${i}`,
-                    `laps_${i}`,
-                    `penalty_${i}`
+                    `angle_${i}`, `time_lz_${i}`, `time_kz_${i}`, `laps_${i}`, `penalty_${i}`
                 ];
                 
                 inputs.forEach(id => {
@@ -400,9 +591,9 @@
                     if (input) {
                         input.addEventListener('input', () => {
                             calculateAll();
+                            saveToLocalStorage();
                         });
                         
-                        // Для полей времени добавляем обработчик blur для форматирования
                         if (id.startsWith('time_')) {
                             input.addEventListener('blur', function() {
                                 formatTimeInput(this);
@@ -413,132 +604,81 @@
             }
         }
         
-        // Форматирование ввода времени
+        function protectElements() {
+            const elements = document.querySelectorAll(
+                '.result-cell, .personal-score, .team-score, .calculated-cell, .max-min-cell, .header-name'
+            );
+            elements.forEach(el => {
+                el.classList.add('protected');
+            });
+        }
+        
         function formatTimeInput(input) {
             let value = input.value.trim();
-            
             if (!value) {
                 input.value = '00:00:00';
                 return;
             }
-            
-            // Удаляем все нецифровые символы
             value = value.replace(/[^\d]/g, '');
-            
-            // Добавляем ведущие нули
-            while (value.length < 6) {
-                value = '0' + value;
-            }
-            
-            // Ограничиваем до 6 цифр (ММССМС)
+            while (value.length < 6) value = '0' + value;
             value = value.substring(0, 6);
-            
-            // Форматируем как ММ:СС:МС
             const minutes = value.substring(0, 2);
             const seconds = value.substring(2, 4);
             const milliseconds = value.substring(4, 6);
-            
             input.value = `${minutes}:${seconds}:${milliseconds}`;
         }
         
-        // Преобразование времени с миллисекундами в секунды (с десятыми)
         function timeToSeconds(timeStr) {
             if (!timeStr || timeStr === '00:00:00') return 0;
-            
-            // Формат: ММ:СС:МС (миллисекунды как сотые доли секунды)
             const parts = timeStr.split(':');
             if (parts.length !== 3) return 0;
-            
             const minutes = parseInt(parts[0]) || 0;
             const seconds = parseInt(parts[1]) || 0;
-            const milliseconds = parseInt(parts[2]) || 0; // 00-99
-            
+            const milliseconds = parseInt(parts[2]) || 0;
             if (isNaN(minutes) || isNaN(seconds) || isNaN(milliseconds)) return 0;
-            
-            // Преобразуем миллисекунды в десятые доли секунды
-            const secondsWithMs = seconds + (milliseconds / 100);
-            
-            return minutes * 60 + secondsWithMs;
+            return minutes * 60 + seconds + (milliseconds / 100);
         }
         
-        // Преобразование секунд в строку времени с миллисекундами
         function secondsToTime(seconds) {
             if (seconds <= 0) return '00:00:00';
-            
-            const totalSeconds = seconds;
-            const mins = Math.floor(totalSeconds / 60);
-            const secs = Math.floor(totalSeconds % 60);
-            const ms = Math.round((totalSeconds - Math.floor(totalSeconds)) * 100);
-            
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            const ms = Math.round((seconds - Math.floor(seconds)) * 100);
             return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}:${ms.toString().padStart(2, '0')}`;
         }
         
-        // Расчет всех результатов
         function calculateAll() {
-            // Собираем все данные участников
             const participantsData = [];
             
             for (let i = 0; i < participants.length; i++) {
-                const angle = parseFloat(document.getElementById(`angle_${i}`).value) || 0;
-                const timeLz = timeToSeconds(document.getElementById(`time_lz_${i}`).value);
-                const timeKz = timeToSeconds(document.getElementById(`time_kz_${i}`).value);
-                const laps = parseFloat(document.getElementById(`laps_${i}`).value) || 0;
-                const penalty = parseFloat(document.getElementById(`penalty_${i}`).value) || 0;
-                
                 participantsData.push({
                     index: i,
-                    angle: angle,
-                    timeLz: timeLz,
-                    timeKz: timeKz,
-                    laps: laps,
-                    penalty: penalty,
-                    team: participants[i].team,
+                    angle: parseFloat(document.getElementById(`angle_${i}`).value) || 0,
+                    timeLz: timeToSeconds(document.getElementById(`time_lz_${i}`).value),
+                    timeKz: timeToSeconds(document.getElementById(`time_kz_${i}`).value),
+                    laps: parseFloat(document.getElementById(`laps_${i}`).value) || 0,
+                    penalty: parseFloat(document.getElementById(`penalty_${i}`).value) || 0,
                     teamIndex: participants[i].teamIndex
                 });
             }
             
-            // Рассчитываем максимумы и минимумы
-            // Максимальный угол (только положительные значения)
-            const maxAngle = Math.max(...participantsData
-                .filter(p => p.angle > 0)
-                .map(p => p.angle));
+            const maxAngle = Math.max(...participantsData.filter(p => p.angle > 0).map(p => p.angle));
+            const minTimeLz = Math.min(...participantsData.filter(p => p.timeLz > 0).map(p => p.timeLz));
+            const minTimeKz = Math.min(...participantsData.filter(p => p.timeKz > 0).map(p => p.timeKz));
+            const maxLaps = Math.max(...participantsData.filter(p => p.laps > 0).map(p => p.laps));
+            const minPenalty = Math.min(...participantsData.filter(p => p.penalty > 0).map(p => p.penalty));
             
-            // Минимальное время ЛЗ (только положительные значения)
-            const minTimeLz = Math.min(...participantsData
-                .filter(p => p.timeLz > 0)
-                .map(p => p.timeLz));
-            
-            // Минимальное время КЗ (только положительные значения)
-            const minTimeKz = Math.min(...participantsData
-                .filter(p => p.timeKz > 0)
-                .map(p => p.timeKz));
-            
-            // Максимальное количество кругов (только положительные значения)
-            const maxLaps = Math.max(...participantsData
-                .filter(p => p.laps > 0)
-                .map(p => p.laps));
-            
-            // Минимальный штраф (только положительные значения)
-            const minPenalty = Math.min(...participantsData
-                .filter(p => p.penalty > 0)
-                .map(p => p.penalty));
-            
-            // Обновляем заголовки с максимумами/минимумами
             document.getElementById('maxAngle').textContent = maxAngle > 0 ? maxAngle : '0';
             document.getElementById('minTimeLz').textContent = minTimeLz > 0 ? secondsToTime(minTimeLz) : '00:00:00';
             document.getElementById('minTimeKz').textContent = minTimeKz > 0 ? secondsToTime(minTimeKz) : '00:00:00';
             document.getElementById('maxLaps').textContent = maxLaps > 0 ? maxLaps : '0';
             document.getElementById('minPenalty').textContent = minPenalty > 0 ? minPenalty : '0';
             
-            // Рассчитываем баллы для каждого участника
-            let maxScoreLz = 0;
-            let maxScoreKz = 0;
-            let maxScoreTrack = 0;
+            let maxScoreLz = 0, maxScoreKz = 0, maxScoreTrack = 0;
             
             participantsData.forEach(data => {
                 const i = data.index;
                 
-                // 1. Баллы Литофф
                 let scoreLz = "ОЖИДАНИЕ";
                 if (maxAngle > 0 && data.angle > 0 && minTimeLz > 0 && data.timeLz > 0) {
                     const calculated = ((data.angle / maxAngle) * 70) + ((minTimeLz / data.timeLz) * 30);
@@ -546,7 +686,6 @@
                     maxScoreLz = Math.max(maxScoreLz, calculated);
                 }
                 
-                // 2. Баллы Квадросим
                 let scoreKz = "ОЖИДАНИЕ";
                 if (minTimeKz > 0 && data.timeKz > 0) {
                     const calculated = (minTimeKz * 100) / data.timeKz;
@@ -554,7 +693,6 @@
                     maxScoreKz = Math.max(maxScoreKz, calculated);
                 }
                 
-                // 3. Баллы Трассы
                 let scoreTrack = "ОЖИДАНИЕ";
                 if (maxLaps > 0 && data.laps > 0) {
                     const calculated = ((data.laps / maxLaps) * 100) - data.penalty;
@@ -562,56 +700,38 @@
                     maxScoreTrack = Math.max(maxScoreTrack, calculated > 0 ? calculated : 0);
                 }
                 
-                // 4. Баллы ЛЗ (личный зачет)
                 let personalScore = "ОЖИДАНИЕ";
                 if (scoreLz !== "ОЖИДАНИЕ" && scoreKz !== "ОЖИДАНИЕ" && scoreTrack !== "ОЖИДАНИЕ") {
-                    const calculated = parseFloat(scoreLz) + parseFloat(scoreKz) + parseFloat(scoreTrack);
-                    personalScore = calculated.toFixed(2);
+                    personalScore = (parseFloat(scoreLz) + parseFloat(scoreKz) + parseFloat(scoreTrack)).toFixed(2);
                 }
                 
-                // Сохраняем результаты
-                data.scoreLz = scoreLz === "ОЖИДАНИЕ" ? 0 : parseFloat(scoreLz);
-                data.scoreKz = scoreKz === "ОЖИДАНИЕ" ? 0 : parseFloat(scoreKz);
-                data.scoreTrack = scoreTrack === "ОЖИДАНИЕ" ? 0 : parseFloat(scoreTrack);
                 data.personalScore = personalScore === "ОЖИДАНИЕ" ? 0 : parseFloat(personalScore);
                 
-                // Обновляем ячейки
                 document.getElementById(`score_lz_${i}`).textContent = scoreLz;
                 document.getElementById(`score_lz_${i}`).className = scoreLz === "ОЖИДАНИЕ" ? "error-cell" : "result-cell";
-                
                 document.getElementById(`score_kz_${i}`).textContent = scoreKz;
                 document.getElementById(`score_kz_${i}`).className = scoreKz === "ОЖИДАНИЕ" ? "error-cell" : "result-cell";
-                
                 document.getElementById(`score_track_${i}`).textContent = scoreTrack;
                 document.getElementById(`score_track_${i}`).className = scoreTrack === "ОЖИДАНИЕ" ? "error-cell" : "result-cell";
-                
                 document.getElementById(`personal_score_${i}`).textContent = personalScore;
                 document.getElementById(`personal_score_${i}`).className = personalScore === "ОЖИДАНИЕ" ? "error-cell" : "personal-score";
             });
             
-            // Обновляем оставшиеся максимумы в заголовках
             document.getElementById('maxScoreLz').textContent = maxScoreLz.toFixed(2);
             document.getElementById('maxScoreKz').textContent = maxScoreKz.toFixed(2);
             document.getElementById('maxScoreTrack').textContent = maxScoreTrack.toFixed(2);
             
-            // Рассчитываем командные баллы (КЗ) - сумма баллов обоих участников команды
             const teamScores = {};
-            
-            // Суммируем личные баллы по командам
             participantsData.forEach(data => {
-                if (!teamScores[data.teamIndex]) {
-                    teamScores[data.teamIndex] = 0;
-                }
+                if (!teamScores[data.teamIndex]) teamScores[data.teamIndex] = 0;
                 teamScores[data.teamIndex] += data.personalScore;
             });
             
-            // Обновляем командные баллы (одна ячейка на команду)
             for (const [teamIndex, teamScore] of Object.entries(teamScores)) {
                 document.getElementById(`team_score_${teamIndex}`).textContent = teamScore.toFixed(2);
                 document.getElementById(`team_score_${teamIndex}`).className = "team-score";
             }
             
-            // Для команд без данных тоже обновляем
             for (let i = 0; i < 5; i++) {
                 if (!teamScores[i]) {
                     document.getElementById(`team_score_${i}`).textContent = "ОЖИДАНИЕ";
@@ -620,74 +740,88 @@
             }
         }
         
-        // Сброс всех данных
+        function saveToLocalStorage() {
+            const data = {};
+            for (let i = 0; i < participants.length; i++) {
+                data[`participant_${i}`] = {
+                    angle: document.getElementById(`angle_${i}`).value,
+                    timeLz: document.getElementById(`time_lz_${i}`).value,
+                    timeKz: document.getElementById(`time_kz_${i}`).value,
+                    laps: document.getElementById(`laps_${i}`).value,
+                    penalty: document.getElementById(`penalty_${i}`).value
+                };
+            }
+            localStorage.setItem(STORAGE_KEYS.DATA, JSON.stringify(data));
+        }
+        
+        function loadFromLocalStorage() {
+            const saved = localStorage.getItem(STORAGE_KEYS.DATA);
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    for (let i = 0; i < participants.length; i++) {
+                        if (data[`participant_${i}`]) {
+                            const p = data[`participant_${i}`];
+                            document.getElementById(`angle_${i}`).value = p.angle || 0;
+                            document.getElementById(`time_lz_${i}`).value = p.timeLz || '00:00:00';
+                            document.getElementById(`time_kz_${i}`).value = p.timeKz || '00:00:00';
+                            document.getElementById(`laps_${i}`).value = p.laps || 0;
+                            document.getElementById(`penalty_${i}`).value = p.penalty || 0;
+                        }
+                    }
+                    calculateAll();
+                } catch (e) {
+                    console.log('Ошибка загрузки данных:', e);
+                }
+            }
+        }
+        
         function resetAll() {
             if (confirm('Вы уверены, что хотите сбросить все данные? Все введенные значения будут удалены.')) {
                 for (let i = 0; i < participants.length; i++) {
-                    // Сбрасываем поля ввода
                     document.getElementById(`angle_${i}`).value = 0;
                     document.getElementById(`time_lz_${i}`).value = '00:00:00';
                     document.getElementById(`time_kz_${i}`).value = '00:00:00';
                     document.getElementById(`laps_${i}`).value = 0;
                     document.getElementById(`penalty_${i}`).value = 0;
                     
-                    // Сбрасываем результаты
-                    document.getElementById(`score_lz_${i}`).textContent = 'ОЖИДАНИЕ';
-                    document.getElementById(`score_lz_${i}`).className = 'error-cell';
-                    
-                    document.getElementById(`score_kz_${i}`).textContent = 'ОЖИДАНИЕ';
-                    document.getElementById(`score_kz_${i}`).className = 'error-cell';
-                    
-                    document.getElementById(`score_track_${i}`).textContent = 'ОЖИДАНИЕ';
-                    document.getElementById(`score_track_${i}`).className = 'error-cell';
-                    
-                    document.getElementById(`personal_score_${i}`).textContent = 'ОЖИДАНИЕ';
-                    document.getElementById(`personal_score_${i}`).className = 'error-cell';
+                    ['score_lz_', 'score_kz_', 'score_track_', 'personal_score_'].forEach(prefix => {
+                        document.getElementById(`${prefix}${i}`).textContent = 'ОЖИДАНИЕ';
+                        document.getElementById(`${prefix}${i}`).className = 'error-cell';
+                    });
                 }
                 
-                // Сбрасываем командные баллы
                 for (let i = 0; i < 5; i++) {
                     document.getElementById(`team_score_${i}`).textContent = 'ОЖИДАНИЕ';
                     document.getElementById(`team_score_${i}`).className = 'error-cell';
                 }
                 
-                // Сбрасываем заголовки
-                document.getElementById('maxAngle').textContent = '0';
-                document.getElementById('minTimeLz').textContent = '00:00:00';
-                document.getElementById('maxScoreLz').textContent = '0.00';
-                document.getElementById('minTimeKz').textContent = '00:00:00';
-                document.getElementById('maxScoreKz').textContent = '0.00';
-                document.getElementById('maxLaps').textContent = '0';
-                document.getElementById('minPenalty').textContent = '0';
-                document.getElementById('maxScoreTrack').textContent = '0.00';
+                ['maxAngle', 'maxScoreLz', 'maxScoreKz', 'maxLaps', 'maxScoreTrack'].forEach(id => {
+                    document.getElementById(id).textContent = id === 'maxAngle' || id === 'maxLaps' ? '0' : '0.00';
+                });
                 
+                ['minTimeLz', 'minTimeKz'].forEach(id => {
+                    document.getElementById(id).textContent = '00:00:00';
+                });
+                
+                document.getElementById('minPenalty').textContent = '0';
+                
+                localStorage.removeItem(STORAGE_KEYS.DATA);
                 alert('Все данные сброшены!');
             }
         }
         
-        // Заполнение тестовыми данными (по примеру из скриншота)
         function fillTestData() {
-            // Тестовые данные как в скриншоте и Excel
             const testData = [
-                // Интенсив - Ксения Л. (данные из скриншота)
                 { angle: 51, timeLz: '00:45:00', timeKz: '00:00:00', laps: 0, penalty: 0 },
-                // Интенсив - Святослав Е. (данные из скриншота)
                 { angle: 63, timeLz: '00:53:00', timeKz: '00:00:00', laps: 0, penalty: 0 },
-                // Прорыв - Никита У. (без данных)
                 { angle: 0, timeLz: '00:00:00', timeKz: '00:00:00', laps: 0, penalty: 0 },
-                // Прорыв - Варя А. (без данных)
                 { angle: 0, timeLz: '00:00:00', timeKz: '00:00:00', laps: 0, penalty: 0 },
-                // Альфа - Дмитрий В. (без данных)
                 { angle: 0, timeLz: '00:00:00', timeKz: '00:00:00', laps: 0, penalty: 0 },
-                // Альфа - Иван Ф. (без данных)
                 { angle: 0, timeLz: '00:00:00', timeKz: '00:00:00', laps: 0, penalty: 0 },
-                // Стабильность - Савелий С. (тестовые данные)
                 { angle: 45, timeLz: '00:48:30', timeKz: '01:30:45', laps: 10, penalty: 2 },
-                // Стабильность - Богдан Е. (тестовые данные)
                 { angle: 38, timeLz: '00:52:15', timeKz: '01:35:20', laps: 8, penalty: 1 },
-                // Мотивация - Артем П. (тестовые данные)
                 { angle: 55, timeLz: '00:42:10', timeKz: '01:25:30', laps: 12, penalty: 3 },
-                // Мотивация - Данила Л. (тестовые данные)
                 { angle: 42, timeLz: '00:55:40', timeKz: '01:40:15', laps: 9, penalty: 2 }
             ];
             
@@ -701,37 +835,23 @@
             }
             
             calculateAll();
-            alert('Тестовые данные загружены! Проверьте расчеты для команды "Интенсив" - должны быть баллы как в скриншоте.');
+            alert('Тестовые данные загружены!');
         }
         
-        // Экспорт в CSV (аналог Excel)
         function exportToExcel() {
             let csvContent = "data:text/csv;charset=utf-8,";
-            
-            // Заголовки
             const headers = [
-                "Команда",
-                "Участник",
-                "Угол (Литофф)",
-                "Время ЛЗ (ММ:СС:МС)",
-                "Баллы ЛЗ",
-                "Время КЗ (ММ:СС:МС)",
-                "Баллы КЗ",
-                "Круги (Трасса)",
-                "Штраф (Трасса)",
-                "Баллы Трассы",
-                "Баллы ЛЗ (личный)",
-                "Баллы КЗ (командный)"
+                "Команда", "Участник", "Угол (Литофф)", "Время ЛЗ (ММ:СС:МС)", "Баллы ЛЗ",
+                "Время КЗ (ММ:СС:МС)", "Баллы КЗ", "Круги (Трасса)", "Штраф (Трасса)",
+                "Баллы Трассы", "Баллы ЛЗ (личный)", "Баллы КЗ (командный)"
             ];
             
             csvContent += headers.join(";") + "\n";
             
-            // Данные участников
             for (let i = 0; i < participants.length; i++) {
                 const participant = participants[i];
                 const isFirstInTeam = i === 0 || participants[i-1].team !== participant.team;
                 
-                // Для командного зачета берем значение только для первого участника
                 let teamScore = "ОЖИДАНИЕ";
                 if (isFirstInTeam) {
                     teamScore = document.getElementById(`team_score_${participant.teamIndex}`).textContent;
@@ -749,13 +869,12 @@
                     document.getElementById(`penalty_${i}`).value,
                     document.getElementById(`score_track_${i}`).textContent,
                     document.getElementById(`personal_score_${i}`).textContent,
-                    isFirstInTeam ? teamScore : "" // Командный зачет только для первого участника
+                    isFirstInTeam ? teamScore : ""
                 ];
                 
                 csvContent += row.join(";") + "\n";
             }
             
-            // Добавляем статистику
             csvContent += "\n;;;Статистика;;;;;;;;\n";
             csvContent += `Максимальный угол;${document.getElementById('maxAngle').textContent};;;;;;;;\n`;
             csvContent += `Минимальное время ЛЗ;${document.getElementById('minTimeLz').textContent};;;;;;;;\n`;
@@ -768,20 +887,13 @@
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "турнирная_таблица_вихрь.csv");
+            link.setAttribute("download", `турнир_вихрь_${new Date().toISOString().slice(0,10)}.csv`);
             document.body.appendChild(link);
-            
             link.click();
             document.body.removeChild(link);
             
-            alert('Таблица экспортирована в файл "турнирная_таблица_вихрь.csv"');
+            alert('Таблица экспортирована в CSV файл!');
         }
-        
-        // Инициализация при загрузке страницы
-        document.addEventListener('DOMContentLoaded', function() {
-            createTable();
-            calculateAll(); // Первоначальный расчет
-        });
     </script>
 </body>
 </html>
