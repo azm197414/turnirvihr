@@ -49,6 +49,11 @@
             text-align: center;
             font-size: 0.9em;
         }
+        .input-cell input:disabled {
+            background-color: #f8f9fa;
+            color: #6c757d;
+            cursor: not-allowed;
+        }
         .result-cell {
             background-color: #e8f4fd;
             font-weight: bold;
@@ -70,6 +75,7 @@
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
+            align-items: center;
         }
         .controls button {
             background-color: #3498db;
@@ -101,6 +107,18 @@
         }
         .controls button.export:hover {
             background-color: #8e44ad;
+        }
+        .controls button.edit-mode {
+            background-color: #f39c12;
+        }
+        .controls button.edit-mode:hover {
+            background-color: #d68910;
+        }
+        .controls button.view-mode {
+            background-color: #7f8c8d;
+        }
+        .controls button.view-mode:hover {
+            background-color: #6c7b7d;
         }
         .notes {
             font-size: 0.9em;
@@ -207,11 +225,31 @@
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
             text-align: center;
-            min-width: 300px;
+            min-width: 400px;
         }
         .password-form h2 {
             color: #2c3e50;
             margin-bottom: 20px;
+        }
+        .password-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ecf0f1;
+        }
+        .password-tab {
+            flex: 1;
+            padding: 10px;
+            background: none;
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #7f8c8d;
+            border-bottom: 3px solid transparent;
+        }
+        .password-tab.active {
+            color: #3498db;
+            border-bottom-color: #3498db;
         }
         .password-input {
             width: 100%;
@@ -249,17 +287,53 @@
             font-size: 14px;
             display: none;
         }
-        .password-hint {
+        .password-info {
             color: #7f8c8d;
+            font-size: 14px;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #ecf0f1;
+            border-radius: 5px;
+        }
+        .password-hint {
+            color: #95a5a6;
             font-size: 12px;
             margin-top: 15px;
             font-style: italic;
         }
         
-        /* Блокировка интерфейса */
-        .locked {
-            opacity: 0.3;
-            pointer-events: none;
+        /* Статус режима */
+        .mode-status {
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9em;
+            margin-left: auto;
+        }
+        .mode-status.view {
+            background-color: #7f8c8d;
+            color: white;
+        }
+        .mode-status.edit {
+            background-color: #f39c12;
+            color: white;
+        }
+        
+        /* Индикатор блокировки */
+        .lock-indicator {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+        .lock-indicator.locked {
+            background-color: #e74c3c;
+            border-radius: 50%;
+        }
+        .lock-indicator.unlocked {
+            background-color: #2ecc71;
+            border-radius: 50%;
         }
         
         @keyframes fadeIn {
@@ -270,33 +344,83 @@
             from { opacity: 1; transform: translateY(0); }
             to { opacity: 0; transform: translateY(-20px); }
         }
+        
+        /* Сообщение для просмотра */
+        .view-message {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
     <!-- Форма ввода пароля -->
     <div id="passwordOverlay" class="password-overlay">
         <div class="password-form">
-            <h2>ДОСТУП К ТУРНИРНОЙ ТАБЛИЦЕ</h2>
-            <p>Для работы с таблицей введите пароль:</p>
-            <input type="password" id="passwordInput" class="password-input" placeholder="Введите пароль" autocomplete="off">
-            <div id="passwordError" class="password-error">Неверный пароль. Попробуйте снова.</div>
-            <button id="passwordSubmit" class="password-submit">Войти</button>
-            <div class="password-hint">Пароль предоставляет организатор турнира</div>
+            <div class="password-tabs">
+                <button class="password-tab active" onclick="switchTab('view')">Только просмотр</button>
+                <button class="password-tab" onclick="switchTab('edit')">Редактирование</button>
+            </div>
+            
+            <div id="viewTab">
+                <h2>ПРОСМОТР ТАБЛИЦЫ</h2>
+                <p>Вы можете просматривать результаты без ввода пароля.</p>
+                <button id="viewSubmit" class="password-submit" onclick="enterViewMode()">Просмотреть таблицу</button>
+                <div class="password-info">
+                    <strong>Режим просмотра:</strong><br>
+                    • Можно смотреть результаты<br>
+                    • Нельзя изменять данные<br>
+                    • Можно экспортировать в CSV<br>
+                    • Расчеты обновляются автоматически
+                </div>
+            </div>
+            
+            <div id="editTab" style="display: none;">
+                <h2>РЕДАКТИРОВАНИЕ ТАБЛИЦЫ</h2>
+                <p>Для ввода и изменения данных введите пароль:</p>
+                <input type="password" id="passwordInput" class="password-input" placeholder="Введите пароль редактора" autocomplete="off">
+                <div id="passwordError" class="password-error">Неверный пароль. Попробуйте снова.</div>
+                <button id="editSubmit" class="password-submit" onclick="enterEditMode()">Войти в режим редактирования</button>
+                <div class="password-info">
+                    <strong>Режим редактирования:</strong><br>
+                    • Можно вводить и изменять данные<br>
+                    • Можно сбрасывать данные<br>
+                    • Можно экспортировать в CSV<br>
+                    • Доступны тестовые данные
+                </div>
+                <div class="password-hint">Пароль предоставляет организатор турнира</div>
+            </div>
         </div>
     </div>
     
-    <!-- Основной контент (изначально скрыт) -->
+    <!-- Основной контент -->
     <div id="mainContent" class="container" style="display: none;">
         <div class="main-title">
             ТАБЛИЦА БОЛЬШОГО ЗИМНЕГО ТУРНИРА КЛУБА ПИЛОТОВ БПЛА "ВИХРЬ"
         </div>
         
+        <div id="viewMessage" class="view-message" style="display: none;">
+            🔒 <strong>РЕЖИМ ПРОСМОТРА</strong> - Вы можете только просматривать результаты. Для изменения данных войдите в режим редактирования.
+        </div>
+        
         <div class="controls">
             <button onclick="calculateAll()">Пересчитать все</button>
-            <button onclick="resetAll()" class="reset">Сбросить все данные</button>
-            <button onclick="fillTestData()" class="test">Заполнить тестовые данные</button>
+            <button onclick="resetAll()" class="reset" id="resetButton" disabled>Сбросить все данные</button>
+            <button onclick="fillTestData()" class="test" id="testButton" disabled>Заполнить тестовые данные</button>
             <button onclick="exportToExcel()" class="export">Экспорт в CSV</button>
-            <button onclick="logout()" class="reset" style="margin-left: auto;">Выйти</button>
+            
+            <div id="modeStatus" class="mode-status view">
+                <span class="lock-indicator locked" id="lockIndicator"></span>
+                <span id="modeText">Режим просмотра</span>
+            </div>
+            
+            <button onclick="switchToEditMode()" class="edit-mode" id="editModeButton">Войти в режим редактирования</button>
+            <button onclick="logout()" class="view-mode" id="logoutButton">Выйти</button>
         </div>
         
         <table class="tournament-table" id="tournamentTable">
@@ -361,106 +485,208 @@
     <div id="warningMessage" class="warning-message"></div>
 
     <script>
-        // ========== СИСТЕМА ПАРОЛЯ ==========
+        // ========== СИСТЕМА ДОСТУПА ==========
         
-        // Пароль для доступа (можно изменить)
-        const ACCESS_PASSWORD = "ASDF2025"; // Замените на свой пароль
+        // Пароль для редактирования (можно изменить)
+        const EDIT_PASSWORD = "Вихрь2024"; // Замените на свой пароль
         
         // Ключи для localStorage
         const STORAGE_KEYS = {
-            PASSWORD: 'турнир_пароль',
             DATA: 'турнир_данные',
-            SESSION: 'турнир_сессия'
+            MODE: 'турнир_режим',
+            EDIT_SESSION: 'турнир_редактор_сессия'
         };
         
-        // Проверка авторизации
-        function checkAuth() {
-            const session = localStorage.getItem(STORAGE_KEYS.SESSION);
-            const savedPassword = localStorage.getItem(STORAGE_KEYS.PASSWORD);
+        // Текущий режим
+        let currentMode = 'view'; // 'view' или 'edit'
+        
+        // Переключение вкладок в форме пароля
+        function switchTab(tab) {
+            document.querySelectorAll('.password-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('viewTab').style.display = 'none';
+            document.getElementById('editTab').style.display = 'none';
             
-            // Если есть активная сессия или сохраненный пароль
-            if (session === 'active' || savedPassword === hashPassword(ACCESS_PASSWORD)) {
-                showMainContent();
-                return true;
+            if (tab === 'view') {
+                document.querySelector('.password-tab[onclick="switchTab(\'view\')"]').classList.add('active');
+                document.getElementById('viewTab').style.display = 'block';
+            } else {
+                document.querySelector('.password-tab[onclick="switchTab(\'edit\')"]').classList.add('active');
+                document.getElementById('editTab').style.display = 'block';
+                document.getElementById('passwordInput').focus();
             }
-            return false;
         }
         
-        // Хеширование пароля (простое)
-        function hashPassword(password) {
-            return btoa(encodeURIComponent(password + 'salt_вихрь'));
+        // Войти в режим просмотра
+        function enterViewMode() {
+            currentMode = 'view';
+            showMainContent();
         }
         
-        // Показать основное содержимое
-        function showMainContent() {
-            document.getElementById('passwordOverlay').style.display = 'none';
-            document.getElementById('mainContent').style.display = 'block';
-            // Установить активную сессию
-            localStorage.setItem(STORAGE_KEYS.SESSION, 'active');
-            // Сохранить пароль для будущих сессий
-            localStorage.setItem(STORAGE_KEYS.PASSWORD, hashPassword(ACCESS_PASSWORD));
-            // Инициализировать таблицу
-            initTable();
-        }
-        
-        // Вход по паролю
-        function login() {
+        // Войти в режим редактирования
+        function enterEditMode() {
             const passwordInput = document.getElementById('passwordInput');
             const passwordError = document.getElementById('passwordError');
             const enteredPassword = passwordInput.value.trim();
             
-            if (enteredPassword === ACCESS_PASSWORD) {
+            if (enteredPassword === EDIT_PASSWORD) {
                 passwordError.style.display = 'none';
                 passwordInput.value = '';
+                currentMode = 'edit';
+                // Сохранить сессию редактора
+                localStorage.setItem(STORAGE_KEYS.EDIT_SESSION, 'active');
                 showMainContent();
             } else {
                 passwordError.style.display = 'block';
                 passwordInput.value = '';
                 passwordInput.focus();
-                // Вибрация при ошибке (если поддерживается)
-                if (navigator.vibrate) {
-                    navigator.vibrate(200);
-                }
+                if (navigator.vibrate) navigator.vibrate(200);
             }
         }
         
-        // Выход
+        // Показать основной контент
+        function showMainContent() {
+            document.getElementById('passwordOverlay').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+            
+            // Сохранить режим
+            localStorage.setItem(STORAGE_KEYS.MODE, currentMode);
+            
+            // Настроить интерфейс в зависимости от режима
+            setupInterfaceForMode();
+            
+            // Инициализировать таблицу
+            initTable();
+        }
+        
+        // Настроить интерфейс для режима
+        function setupInterfaceForMode() {
+            const viewMessage = document.getElementById('viewMessage');
+            const resetButton = document.getElementById('resetButton');
+            const testButton = document.getElementById('testButton');
+            const editModeButton = document.getElementById('editModeButton');
+            const modeStatus = document.getElementById('modeStatus');
+            const modeText = document.getElementById('modeText');
+            const lockIndicator = document.getElementById('lockIndicator');
+            
+            if (currentMode === 'view') {
+                // Режим просмотра
+                viewMessage.style.display = 'block';
+                resetButton.disabled = true;
+                testButton.disabled = true;
+                editModeButton.style.display = 'inline-block';
+                modeStatus.className = 'mode-status view';
+                modeText.textContent = 'Режим просмотра';
+                lockIndicator.className = 'lock-indicator locked';
+                
+                // Заблокировать поля ввода
+                disableInputFields();
+            } else {
+                // Режим редактирования
+                viewMessage.style.display = 'none';
+                resetButton.disabled = false;
+                testButton.disabled = false;
+                editModeButton.style.display = 'none';
+                modeStatus.className = 'mode-status edit';
+                modeText.textContent = 'Режим редактирования';
+                lockIndicator.className = 'lock-indicator unlocked';
+                
+                // Разблокировать поля ввода
+                enableInputFields();
+            }
+        }
+        
+        // Заблокировать поля ввода
+        function disableInputFields() {
+            const inputs = document.querySelectorAll('.input-cell input');
+            inputs.forEach(input => {
+                input.disabled = true;
+                input.title = 'Режим просмотра. Для редактирования войдите в режим редактирования.';
+            });
+        }
+        
+        // Разблокировать поля ввода
+        function enableInputFields() {
+            const inputs = document.querySelectorAll('.input-cell input');
+            inputs.forEach(input => {
+                input.disabled = false;
+                input.title = '';
+            });
+        }
+        
+        // Переключиться в режим редактирования (из режима просмотра)
+        function switchToEditMode() {
+            document.getElementById('mainContent').style.display = 'none';
+            document.getElementById('passwordOverlay').style.display = 'flex';
+            switchTab('edit');
+            document.getElementById('passwordInput').focus();
+        }
+        
+        // Выйти из системы
         function logout() {
-            if (confirm('Вы уверены, что хотите выйти? Данные будут сохранены.')) {
-                localStorage.removeItem(STORAGE_KEYS.SESSION);
+            if (confirm('Вы уверены, что хотите выйти?')) {
+                // Очистить сессию редактора
+                localStorage.removeItem(STORAGE_KEYS.EDIT_SESSION);
+                
+                // Показать форму выбора режима
                 document.getElementById('mainContent').style.display = 'none';
                 document.getElementById('passwordOverlay').style.display = 'flex';
-                document.getElementById('passwordInput').focus();
+                switchTab('view');
             }
         }
         
-        // Автовыход через 8 часов
-        setTimeout(() => {
-            if (localStorage.getItem(STORAGE_KEYS.SESSION) === 'active') {
-                localStorage.removeItem(STORAGE_KEYS.SESSION);
-                alert('Сессия истекла. Пожалуйста, войдите снова.');
-                location.reload();
+        // Проверить сохраненную сессию
+        function checkSavedSession() {
+            const editSession = localStorage.getItem(STORAGE_KEYS.EDIT_SESSION);
+            const savedMode = localStorage.getItem(STORAGE_KEYS.MODE);
+            
+            if (editSession === 'active') {
+                // Есть активная сессия редактора
+                currentMode = 'edit';
+                return true;
+            } else if (savedMode === 'view' || savedMode === 'edit') {
+                // Есть сохраненный режим
+                currentMode = savedMode;
+                if (currentMode === 'edit') {
+                    // Если был режим редактирования, но сессия истекла
+                    currentMode = 'view';
+                }
+                return true;
             }
-        }, 8 * 60 * 60 * 1000); // 8 часов
+            return false;
+        }
+        
+        // Автовыход редактора через 4 часа
+        setTimeout(() => {
+            if (localStorage.getItem(STORAGE_KEYS.EDIT_SESSION) === 'active') {
+                localStorage.removeItem(STORAGE_KEYS.EDIT_SESSION);
+                localStorage.setItem(STORAGE_KEYS.MODE, 'view');
+                
+                // Если сейчас в режиме редактирования, переключить на просмотр
+                if (currentMode === 'edit') {
+                    currentMode = 'view';
+                    setupInterfaceForMode();
+                    showWarning('Сессия редактора истекла. Переключен в режим просмотра.');
+                }
+            }
+        }, 4 * 60 * 60 * 1000); // 4 часа
         
         // ========== ИНИЦИАЛИЗАЦИЯ ==========
         
         document.addEventListener('DOMContentLoaded', function() {
             // Настроить обработчики для формы пароля
-            document.getElementById('passwordSubmit').addEventListener('click', login);
             document.getElementById('passwordInput').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
-                    login();
+                    enterEditMode();
                 }
             });
             
-            // Фокус на поле пароля при загрузке
-            document.getElementById('passwordInput').focus();
-            
-            // Проверить авторизацию
-            if (!checkAuth()) {
-                // Показать форму пароля
+            // Проверить сохраненную сессию
+            if (checkSavedSession()) {
+                showMainContent();
+            } else {
+                // Показать форму выбора режима
                 document.getElementById('passwordOverlay').style.display = 'flex';
+                switchTab('view');
             }
             
             // Защита от DevTools
@@ -472,8 +698,10 @@
         function initProtection() {
             // 1. Запретить контекстное меню
             document.addEventListener('contextmenu', function(e) {
-                e.preventDefault();
-                showWarning('Правый клик отключен. Используйте кнопки управления.');
+                if (currentMode === 'view') {
+                    e.preventDefault();
+                    showWarning('Режим просмотра. Для редактирования войдите в режим редактирования.');
+                }
                 return false;
             });
             
@@ -489,9 +717,8 @@
             });
             
             // 3. Сообщение в консоли
-            console.log('%c ⚠️ ДОСТУП ОГРАНИЧЕН ⚠️ ', 'color: red; font-size: 24px; font-weight: bold;');
-            console.log('%c Изменение кода таблицы запрещено! ', 'color: white; background: red; font-size: 16px;');
-            console.log('%c Используйте только поля ввода для изменения данных. ', 'color: #2c3e50; font-size: 14px;');
+            console.log('%c ⚠️ ТУРНИРНАЯ ТАБЛИЦА "ВИХРЬ" ⚠️ ', 'color: #2c3e50; font-size: 24px; font-weight: bold;');
+            console.log('%c Доступ ограничен. Используйте только предоставленные поля ввода. ', 'color: white; background: #3498db; font-size: 16px;');
         }
         
         function showWarning(message) {
@@ -527,6 +754,13 @@
             createTable();
             loadFromLocalStorage();
             protectElements();
+            
+            // В зависимости от режима настроить поля ввода
+            if (currentMode === 'view') {
+                disableInputFields();
+            } else {
+                enableInputFields();
+            }
         }
         
         function createTable() {
@@ -590,13 +824,17 @@
                     const input = document.getElementById(id);
                     if (input) {
                         input.addEventListener('input', () => {
-                            calculateAll();
-                            saveToLocalStorage();
+                            if (currentMode === 'edit') {
+                                calculateAll();
+                                saveToLocalStorage();
+                            }
                         });
                         
                         if (id.startsWith('time_')) {
                             input.addEventListener('blur', function() {
-                                formatTimeInput(this);
+                                if (currentMode === 'edit') {
+                                    formatTimeInput(this);
+                                }
                             });
                         }
                     }
@@ -777,6 +1015,11 @@
         }
         
         function resetAll() {
+            if (currentMode !== 'edit') {
+                showWarning('Только редакторы могут сбрасывать данные.');
+                return;
+            }
+            
             if (confirm('Вы уверены, что хотите сбросить все данные? Все введенные значения будут удалены.')) {
                 for (let i = 0; i < participants.length; i++) {
                     document.getElementById(`angle_${i}`).value = 0;
@@ -812,6 +1055,11 @@
         }
         
         function fillTestData() {
+            if (currentMode !== 'edit') {
+                showWarning('Только редакторы могут загружать тестовые данные.');
+                return;
+            }
+            
             const testData = [
                 { angle: 51, timeLz: '00:45:00', timeKz: '00:00:00', laps: 0, penalty: 0 },
                 { angle: 63, timeLz: '00:53:00', timeKz: '00:00:00', laps: 0, penalty: 0 },
@@ -835,7 +1083,8 @@
             }
             
             calculateAll();
-            alert('Тестовые данные загружены!');
+            saveToLocalStorage();
+            alert('Тестовые данные загружены и сохранены!');
         }
         
         function exportToExcel() {
@@ -886,14 +1135,22 @@
             
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
+            const date = new Date().toISOString().slice(0,10).replace(/-/g, '');
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `турнир_вихрь_${new Date().toISOString().slice(0,10)}.csv`);
+            link.setAttribute("download", `турнир_вихрь_${date}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
             
             alert('Таблица экспортирована в CSV файл!');
         }
+        
+        // Автоматический пересчет каждую минуту (для режима просмотра)
+        setInterval(() => {
+            if (currentMode === 'view') {
+                calculateAll();
+            }
+        }, 60000); // 1 минута
     </script>
 </body>
 </html>
