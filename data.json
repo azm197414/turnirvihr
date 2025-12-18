@@ -1,18 +1,116 @@
 {
-  "lastUpdated": "2024-01-15T10:30:00Z",
+  "lastUpdated": "2024-01-16T14:00:00Z",
   "version": 1,
   "participants": [
     {
       "team": "Интенсив",
       "name": "Ксения Л.",
-      "angle": 0,
-      "timeLz": "00:00:00",
-      "timeKz": "00:00:00",
-      "laps": 0,
+      "angle": 51,
+      "timeLz": "00:45:00",
+      "timeKz": "01:15:30",
+      "laps": 8,
+      "penalty_gates": 1,
+      "penalty_fall": 0,
+      "penalty_flip": 0
+    },
+    {
+      "team": "Интенсив",
+      "name": "Святослав Е.",
+      "angle": 63,
+      "timeLz": "00:53:00",
+      "timeKz": "01:20:45",
+      "laps": 10,
+      "penalty_gates": 2,
+      "penalty_fall": 1,
+      "penalty_flip": 0
+    },
+    {
+      "team": "Прорыв",
+      "name": "Никита У.",
+      "angle": 45,
+      "timeLz": "00:48:30",
+      "timeKz": "01:30:45",
+      "laps": 12,
+      "penalty_gates": 0,
+      "penalty_fall": 1,
+      "penalty_flip": 0
+    },
+    {
+      "team": "Прорыв",
+      "name": "Варя А.",
+      "angle": 38,
+      "timeLz": "00:52:15",
+      "timeKz": "01:35:20",
+      "laps": 9,
+      "penalty_gates": 1,
+      "penalty_fall": 0,
+      "penalty_flip": 1
+    },
+    {
+      "team": "Альфа",
+      "name": "Дмитрий В.",
+      "angle": 55,
+      "timeLz": "00:42:10",
+      "timeKz": "01:25:30",
+      "laps": 11,
+      "penalty_gates": 3,
+      "penalty_fall": 0,
+      "penalty_flip": 0
+    },
+    {
+      "team": "Альфа",
+      "name": "Иван Ф.",
+      "angle": 42,
+      "timeLz": "00:55:40",
+      "timeKz": "01:40:15",
+      "laps": 7,
+      "penalty_gates": 0,
+      "penalty_fall": 2,
+      "penalty_flip": 0
+    },
+    {
+      "team": "Стабильность",
+      "name": "Савелий С.",
+      "angle": 60,
+      "timeLz": "00:46:20",
+      "timeKz": "01:18:50",
+      "laps": 13,
+      "penalty_gates": 1,
+      "penalty_fall": 1,
+      "penalty_flip": 0
+    },
+    {
+      "team": "Стабильность",
+      "name": "Богдан Е.",
+      "angle": 35,
+      "timeLz": "00:57:10",
+      "timeKz": "01:45:30",
+      "laps": 6,
+      "penalty_gates": 2,
+      "penalty_fall": 0,
+      "penalty_flip": 1
+    },
+    {
+      "team": "Мотивация",
+      "name": "Артем П.",
+      "angle": 48,
+      "timeLz": "00:49:45",
+      "timeKz": "01:28:15",
+      "laps": 10,
       "penalty_gates": 0,
       "penalty_fall": 0,
       "penalty_flip": 0
+    },
+    {
+      "team": "Мотивация",
+      "name": "Данила Л.",
+      "angle": 40,
+      "timeLz": "00:54:20",
+      "timeKz": "01:38:40",
+      "laps": 8,
+      "penalty_gates": 1,
+      "penalty_fall": 1,
+      "penalty_flip": 0
     }
-    // ... остальные участники
   ]
 }
