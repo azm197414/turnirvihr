@@ -1,1 +1,11 @@
-config.js
+# Файлы с секретами
+secret.js
+config.local.js
+token.js
+
+# Файлы систем
+.DS_Store
+Thumbs.db
+
+# Логи
+*.log
