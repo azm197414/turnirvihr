@@ -393,3 +393,22 @@ document.addEventListener('DOMContentLoaded', function() {
 window.loadFromServer = loadFromServer;
 window.saveToServer = saveToServer;
 window.toggleAutoSync = toggleAutoSync;
+// ОТЛАДОЧНАЯ ФУНКЦИЯ
+function debugTable() {
+    console.log('=== ОТЛАДКА ТАБЛИЦЫ ===');
+    
+    // Проверяем элементы
+    for (let i = 0; i < 10; i++) {
+        const angle = document.getElementById(`angle_${i}`);
+        console.log(`Участник ${i}: angle элемент -`, angle ? 'НАЙДЕН' : 'НЕ НАЙДЕН');
+    }
+    
+    // Проверяем данные в data.json
+    fetch(GITHUB_CONFIG.DATA_URL)
+        .then(r => r.json())
+        .then(data => console.log('Данные в data.json:', data))
+        .catch(e => console.error('Ошибка загрузки:', e));
+}
+
+// Запускаем отладку через 3 секунды
+setTimeout(debugTable, 3000);
