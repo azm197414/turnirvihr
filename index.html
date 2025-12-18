@@ -119,6 +119,10 @@
         }
         .controls button.view-mode:hover {
             background-color: #6c7b7d;
+           
+            <button onclick="OnlineSync.forceSync()" style="background:#9b59b6;">
+    🔄 Синхронизировать
+</button>
         }
         .notes {
             font-size: 0.9em;
@@ -659,6 +663,7 @@
         }
 
         function setupInterfaceForMode() {
+          
             const viewMessage = document.getElementById('viewMessage');
             const resetButton = document.getElementById('resetButton');
             const testButton = document.getElementById('testButton');
@@ -666,7 +671,10 @@
             const modeStatus = document.getElementById('modeStatus');
             const modeText = document.getElementById('modeText');
             const lockIndicator = document.getElementById('lockIndicator');
-
+            
+            if (currentMode === 'edit' && window.OnlineSync) {
+                window.OnlineSync.startAutoSync();
+           }
             if (currentMode === 'view') {
                 viewMessage.style.display = 'block';
                 resetButton.disabled = true;
