@@ -1569,4 +1569,53 @@
 
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
-            const date = new Date().toISOString().slice(0,10).replace
+            const date = new Date().toISOString().slice(0,10).replace(/-/g, '');
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `турнир_вихрь_${date}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            alert('Таблица экспортирована в CSV файл!');
+        }
+
+        // ========== ЗАЩИТА ==========
+        function initProtection() {
+            document.addEventListener('contextmenu', function(e) {
+                if (currentMode === 'view') {
+                    e.preventDefault();
+                    showWarning('Режим просмотра. Для редактирования войдите в режим редактирования.');
+                }
+                return false;
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (e.keyCode === 123 ||
+                    (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) ||
+                    (e.ctrlKey && e.keyCode === 85)) {
+                    e.preventDefault();
+                    showWarning('Горячие клавиши разработчика отключены!');
+                    return false;
+                }
+            });
+
+            console.log('%c ⚠️ ТУРНИРНАЯ ТАБЛИЦА "ВИХРЬ" - РЕДАКТОР ⚠️ ', 'color: #2c3e50; font-size: 24px; font-weight: bold;');
+            console.log('%c Для редактирования введите пароль "Вихрь2024". Для сохранения в облако потребуется GitHub токен. ', 'color: white; background: #3498db; font-size: 16px;');
+        }
+
+        function showWarning(message) {
+            const warning = document.getElementById('warningMessage');
+            warning.textContent = message;
+            warning.style.display = 'block';
+
+            setTimeout(() => {
+                warning.style.animation = 'fadeOut 0.3s';
+                setTimeout(() => {
+                    warning.style.display = 'none';
+                    warning.style.animation = '';
+                }, 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
