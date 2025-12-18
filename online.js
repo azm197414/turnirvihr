@@ -457,7 +457,8 @@ function forceSync() {
 function getSyncStatus() {
     return {
         ...syncStatus,
-        tokenConfigured: GITHUB_TOKEN && GITHUB_TOKEN !== 'ghp_ваш_действительный_токен',
+        // ИСПРАВЛЕННАЯ СТРОКА: проверяем, что токен просто существует и не пустой
+        tokenConfigured: GITHUB_TOKEN && GITHUB_TOKEN.length > 0,
         isOnlineMode: isOnlineMode
     };
 }
