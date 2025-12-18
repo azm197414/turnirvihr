@@ -3,11 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Турнирная таблица клуба "Вихрь" - ОНЛАЙН</title>
-    <!-- Публичные настройки -->
-<script src="config.js"></script>
-<!-- Секретный токен (будет только локально) -->
-<script src="secret.js"></script>
+    <title>Турнирная таблица клуба "Вихрь" - РЕДАКТОР</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -123,13 +119,6 @@
         }
         .controls button.view-mode:hover {
             background-color: #6c7b7d;
-            <button onclick="saveToLocalStorage(); alert('Данные сохранены локально!')">
-    💾 Сохранить локально
-</button>
-           
-            <button onclick="OnlineSync.forceSync()" style="background:#9b59b6;">
-    🔄 Синхронизировать
-</button>
         }
         .notes {
             font-size: 0.9em;
@@ -428,6 +417,24 @@
         .log-message.success { color: #27ae60; }
         .log-message.error { color: #e74c3c; }
         .log-message.info { color: #3498db; }
+        
+        /* Статус токена */
+        .token-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            margin-left: 10px;
+        }
+        .token-status.valid {
+            background-color: #d5f4e6;
+            color: #27ae60;
+        }
+        .token-status.invalid {
+            background-color: #fadbd8;
+            color: #e74c3c;
+        }
     </style>
 </head>
 <body>
@@ -463,6 +470,7 @@
                     <strong>Онлайн-режим редактирования:</strong><br>
                     • Можно вводить и изменять данные<br>
                     • Изменения сохраняются в облако<br>
+                    • Требуется GitHub токен при первом сохранении<br>
                     • Можно сбрасывать данные<br>
                     • Доступны тестовые данные
                 </div>
@@ -474,14 +482,18 @@
     <!-- Основной контент -->
     <div id="mainContent" class="container" style="display: none;">
         <div class="main-title">
-            ТАБЛИЦА БОЛЬШОГО ЗИМНЕГО ТУРНИРА КЛУБА ПИЛОТОВ БПЛА "ВИХРЬ" - ОНЛАЙН
+            ТАБЛИЦА БОЛЬШОГО ЗИМНЕГО ТУРНИРА КЛУБА ПИЛОТОВ БПЛА "ВИХРЬ" - РЕДАКТОР
         </div>
 
-        <div id="statusBar" style="margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+        <div id="statusBar" style="margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
             <div id="syncStatus" class="sync-status offline">
                 <span class="sync-indicator offline"></span>
                 <span id="syncText">Оффлайн</span>
                 <span id="syncDetail">Не синхронизировано</span>
+            </div>
+            <div id="tokenStatus" class="token-status invalid" style="display: none;">
+                <span id="tokenIcon">🔒</span>
+                <span id="tokenText">Токен не введен</span>
             </div>
             <div class="log-message info" id="systemLog">[12:00:00] Система инициализирована</div>
         </div>
@@ -496,6 +508,7 @@
             <button onclick="fillTestData()" class="test" id="testButton" disabled>Заполнить тестовые данные</button>
             <button onclick="exportToExcel()" class="export">Экспорт в CSV</button>
             <button onclick="forceSync()" id="syncButton">⟳ Синхронизировать</button>
+            <button onclick="setGitHubToken()" style="background: #9b59b6;" id="tokenButton">🔑 Ввести GitHub токен</button>
 
             <div id="modeStatus" class="mode-status view">
                 <span class="lock-indicator locked" id="lockIndicator"></span>
@@ -568,8 +581,7 @@
                 <li><strong>Баллы КЗ (командный зачет):</strong> = Сумма Баллов_ЛЗ обоих участников команды (одна ячейка на команду)</li>
                 <li><strong>ОЖИДАНИЕ:</strong> показывается при отсутствии данных или делении на ноль</li>
             </ul>
-            <p><strong>Штрафы по регламенту:</strong> Врезание в ворота (-5), Падение (-10), Падение с переворотом (-20)</p>
-            <p><strong>Онлайн-функции:</strong> Автоматическая синхронизация каждые 60 секунд, загрузка данных с сервера, сохранение изменений в облако.</p>
+            <p><strong>GitHub токен:</strong> Требуется для сохранения данных в облако. Получите в GitHub → Settings → Developer settings → Personal access tokens (права: repo).</p>
         </div>
     </div>
 
@@ -577,18 +589,18 @@
 
     <script>
         // ========== КОНФИГУРАЦИЯ СИСТЕМЫ ==========
-        // ВАЖНО: ЗАМЕНИТЕ ЭТИ ДАННЫЕ НА СВОИ!
+        // БЕЗОПАСНО: токен вводится пользователем, а не хранится в коде
 
-        // 1. ВАШ НОВЫЙ GitHub Personal Access Token (после отзыва старого)
-        const GITHUB_TOKEN = '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';
+        // 1. GitHub токен (будет введен пользователем)
+        let GITHUB_TOKEN = '';
 
-        // 2. Ваш репозиторий (скорее всего 'вашлогин/turnirvihr')
-        const REPO = 'azm197414/turnirvihr'; // Пример, проверьте имя репозитория
+        // 2. Ваш репозиторий
+        const REPO = 'azm197414/turnirvihr';
 
         // 3. Имя файла для хранения данных в репозитории
         const DATA_FILE = 'turnir_data.json';
 
-        // 4. Пароль для входа в режим редактирования (можете оставить или изменить)
+        // 4. Пароль для входа в режим редактирования
         const EDIT_PASSWORD = "Вихрь2024";
 
         // 5. URL для загрузки (публичный) и сохранения (через API) данных
@@ -599,12 +611,13 @@
         const STORAGE_KEYS = {
             LOCAL_DATA: 'турнир_данные',
             MODE: 'турнир_режим',
-            EDIT_SESSION: 'турнир_редактор_сессия'
+            EDIT_SESSION: 'турнир_редактор_сессия',
+            GITHUB_TOKEN_TEMP: 'github_token_temp'
         };
 
         let currentMode = 'view';
         let isOnline = false;
-        let dataSHA = null; // SHA хеш файла в репозитории для обновления
+        let dataSHA = null;
         let syncInterval;
         const participants = [
             { team: "Интенсив", name: "Ксения Л.", id: 1, teamIndex: 0 },
@@ -618,6 +631,64 @@
             { team: "Мотивация", name: "Артем П.", id: 9, teamIndex: 4 },
             { team: "Мотивация", name: "Данила Л.", id: 10, teamIndex: 4 }
         ];
+
+        // ========== СИСТЕМА ВВОДА ТОКЕНА ==========
+        function setGitHubToken() {
+            const token = prompt(
+                '🔐 ВВЕДИТЕ GITHUB ТОКЕН ДЛЯ СОХРАНЕНИЯ ДАННЫХ:\n\n' +
+                '1. Получите токен: GitHub → Settings → Developer settings → Personal access tokens\n' +
+                '2. Выберите: Generate new token (classic)\n' +
+                '3. Название: turnirvihr_editor\n' +
+                '4. Срок: No expiration (без срока)\n' +
+                '5. Права: Включите ТОЛЬКО "repo" (галочка)\n' +
+                '6. Скопируйте токен (начинается с ghp_) и вставьте ниже:\n\n' +
+                'Введите токен:',
+                ''
+            );
+            
+            if (token && token.startsWith('ghp_')) {
+                GITHUB_TOKEN = token;
+                localStorage.setItem(STORAGE_KEYS.GITHUB_TOKEN_TEMP, token);
+                updateTokenStatus(true);
+                alert('✅ Токен успешно сохранен!\n\nТокен хранится только в памяти вашего браузера и будет автоматически удален через 4 часа.');
+                return true;
+            } else if (token === '' || token === null) {
+                return false;
+            } else {
+                alert('❌ Неверный формат токена!\n\nGitHub токен должен:\n• Начинаться с "ghp_"\n• Содержать 40 символов\n• Быть получен в настройках GitHub');
+                return false;
+            }
+        }
+
+        function updateTokenStatus(hasValidToken) {
+            const tokenStatus = document.getElementById('tokenStatus');
+            const tokenIcon = document.getElementById('tokenIcon');
+            const tokenText = document.getElementById('tokenText');
+            
+            tokenStatus.style.display = 'inline-flex';
+            
+            if (hasValidToken && GITHUB_TOKEN && GITHUB_TOKEN.startsWith('ghp_')) {
+                tokenStatus.className = 'token-status valid';
+                tokenIcon.textContent = '✅';
+                // Показываем только первые 10 символов токена для безопасности
+                const shortToken = GITHUB_TOKEN.substring(0, 10) + '...';
+                tokenText.textContent = `Токен: ${shortToken}`;
+            } else {
+                tokenStatus.className = 'token-status invalid';
+                tokenIcon.textContent = '🔒';
+                tokenText.textContent = 'Токен не введен';
+            }
+        }
+
+        function checkSavedToken() {
+            const savedToken = localStorage.getItem(STORAGE_KEYS.GITHUB_TOKEN_TEMP);
+            if (savedToken && savedToken.startsWith('ghp_')) {
+                GITHUB_TOKEN = savedToken;
+                console.log('Токен загружен из локального хранилища');
+                return true;
+            }
+            return false;
+        }
 
         // ========== СИСТЕМА ДОСТУПА И ИНТЕРФЕЙС ==========
         function switchTab(tab) {
@@ -667,10 +738,13 @@
             setupInterfaceForMode();
             initTable();
             startAutoSync();
+            
+            // Проверяем сохраненный токен
+            checkSavedToken();
+            updateTokenStatus(GITHUB_TOKEN && GITHUB_TOKEN.startsWith('ghp_'));
         }
 
         function setupInterfaceForMode() {
-          
             const viewMessage = document.getElementById('viewMessage');
             const resetButton = document.getElementById('resetButton');
             const testButton = document.getElementById('testButton');
@@ -678,15 +752,18 @@
             const modeStatus = document.getElementById('modeStatus');
             const modeText = document.getElementById('modeText');
             const lockIndicator = document.getElementById('lockIndicator');
+            const tokenButton = document.getElementById('tokenButton');
             
             if (currentMode === 'edit' && window.OnlineSync) {
                 window.OnlineSync.startAutoSync();
-           }
+            }
+            
             if (currentMode === 'view') {
                 viewMessage.style.display = 'block';
                 resetButton.disabled = true;
                 testButton.disabled = true;
                 editModeButton.style.display = 'inline-block';
+                tokenButton.style.display = 'none';
                 modeStatus.className = 'mode-status view';
                 modeText.textContent = 'Режим просмотра';
                 lockIndicator.className = 'lock-indicator locked';
@@ -696,6 +773,7 @@
                 resetButton.disabled = false;
                 testButton.disabled = false;
                 editModeButton.style.display = 'none';
+                tokenButton.style.display = 'inline-block';
                 modeStatus.className = 'mode-status edit';
                 modeText.textContent = 'Режим редактирования';
                 lockIndicator.className = 'lock-indicator unlocked';
@@ -729,6 +807,8 @@
         function logout() {
             if (confirm('Вы уверены, что хотите выйти?')) {
                 localStorage.removeItem(STORAGE_KEYS.EDIT_SESSION);
+                localStorage.removeItem(STORAGE_KEYS.GITHUB_TOKEN_TEMP);
+                GITHUB_TOKEN = '';
                 stopAutoSync();
                 document.getElementById('mainContent').style.display = 'none';
                 document.getElementById('passwordOverlay').style.display = 'flex';
@@ -746,7 +826,7 @@
             } else if (savedMode === 'view' || savedMode === 'edit') {
                 currentMode = savedMode;
                 if (currentMode === 'edit') {
-                    currentMode = 'view'; // Без активной сессии сбрасываем в просмотр
+                    currentMode = 'view';
                 }
                 return true;
             }
@@ -757,9 +837,11 @@
         setTimeout(() => {
             if (localStorage.getItem(STORAGE_KEYS.EDIT_SESSION) === 'active') {
                 localStorage.removeItem(STORAGE_KEYS.EDIT_SESSION);
+                localStorage.removeItem(STORAGE_KEYS.GITHUB_TOKEN_TEMP);
                 localStorage.setItem(STORAGE_KEYS.MODE, 'view');
 
                 if (currentMode === 'edit') {
+                    GITHUB_TOKEN = '';
                     currentMode = 'view';
                     setupInterfaceForMode();
                     showWarning('Сессия редактора истекла. Переключен в режим просмотра.');
@@ -808,19 +890,15 @@
         }
 
         function startAutoSync() {
-            // Останавливаем предыдущий интервал, если был
             if (syncInterval) clearInterval(syncInterval);
 
-            // Синхронизируем каждые 60 секунд
             syncInterval = setInterval(async () => {
                 if (currentMode === 'edit') {
-                    // В режиме редактирования - сохраняем изменения
                     await saveOnlineData();
                 } else {
-                    // В режиме просмотра - загружаем обновления
                     await loadOnlineData();
                 }
-            }, 60000); // 60 секунд
+            }, 60000);
 
             logMessage('Автосинхронизация запущена (60 сек)', 'info');
         }
@@ -839,24 +917,29 @@
                 return false;
             }
 
+            // Проверяем токен перед сохранением
+            if (!GITHUB_TOKEN || !GITHUB_TOKEN.startsWith('ghp_')) {
+                logMessage('Требуется GitHub токен для сохранения', 'error');
+                if (!setGitHubToken()) {
+                    showWarning('Сохранение отменено. Токен не введен.');
+                    return false;
+                }
+            }
+
             // Собираем все текущие данные
             const data = collectAllData();
-
-            // Обновляем локальное хранилище
             localStorage.setItem(STORAGE_KEYS.LOCAL_DATA, JSON.stringify(data));
 
             setSyncStatus('syncing', 'Сохранение в облако...');
             logMessage('Начинаю сохранение онлайн-данных...', 'info');
 
             try {
-                // Подготовка данных для GitHub API
                 const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
                 const body = {
                     message: `Обновление данных турнира от ${new Date().toLocaleString('ru-RU')}`,
                     content: content
                 };
 
-                // Если у нас есть SHA предыдущей версии, добавляем его для обновления
                 if (dataSHA) {
                     body.sha = dataSHA;
                 }
@@ -872,11 +955,20 @@
 
                 if (!response.ok) {
                     const errorData = await response.json();
+                    
+                    // Если токен неверный, очищаем его
+                    if (response.status === 401 || response.status === 403) {
+                        localStorage.removeItem(STORAGE_KEYS.GITHUB_TOKEN_TEMP);
+                        GITHUB_TOKEN = '';
+                        updateTokenStatus(false);
+                        showWarning('Токен недействителен. Введите новый токен.');
+                    }
+                    
                     throw new Error(errorData.message || `HTTP ${response.status}`);
                 }
 
                 const result = await response.json();
-                dataSHA = result.content.sha; // Сохраняем новый SHA
+                dataSHA = result.content.sha;
 
                 setSyncStatus('online', `Обновлено: ${new Date().toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'})}`);
                 logMessage(`Данные успешно сохранены в облако!`, 'success');
@@ -896,34 +988,38 @@
             logMessage('Запрашиваю актуальные данные с сервера...', 'info');
 
             try {
-                // Загружаем данные с GitHub (сырой файл)
-                const response = await fetch(DATA_URL + '?t=' + Date.now()); // Добавляем timestamp для избежания кеша
+                // Для режима просмотра используем публичный доступ
+                const response = await fetch(DATA_URL + '?t=' + Date.now());
 
                 if (!response.ok) {
                     if (response.status === 404) {
-                        logMessage('Файл данных на сервере не найден. Будет создан при первом сохранении.', 'info');
+                        logMessage('Файл данных на сервере не найден', 'info');
                         setSyncStatus('offline', 'Файл данных не найден');
                         return null;
                     }
                     throw new Error(`HTTP ${response.status}`);
                 }
 
-                // Получаем SHA файла через GitHub API
-                const apiResponse = await fetch(SAVE_URL, {
-                    headers: {
-                        'Authorization': `token ${GITHUB_TOKEN}`,
-                        'Accept': 'application/vnd.github.v3+json'
-                    }
-                });
+                // Получаем SHA файла только если есть токен
+                if (GITHUB_TOKEN && GITHUB_TOKEN.startsWith('ghp_')) {
+                    try {
+                        const apiResponse = await fetch(SAVE_URL, {
+                            headers: {
+                                'Authorization': `token ${GITHUB_TOKEN}`,
+                                'Accept': 'application/vnd.github.v3+json'
+                            }
+                        });
 
-                if (apiResponse.ok) {
-                    const fileInfo = await apiResponse.json();
-                    dataSHA = fileInfo.sha;
+                        if (apiResponse.ok) {
+                            const fileInfo = await apiResponse.json();
+                            dataSHA = fileInfo.sha;
+                        }
+                    } catch (e) {
+                        console.warn('Не удалось получить SHA файла:', e);
+                    }
                 }
 
                 const data = await response.json();
-
-                // Применяем загруженные данные к таблице
                 applyDataToTable(data);
                 localStorage.setItem(STORAGE_KEYS.LOCAL_DATA, JSON.stringify(data));
 
@@ -937,7 +1033,6 @@
                 setSyncStatus('offline', 'Нет соединения');
                 logMessage(`Не удалось загрузить онлайн-данные. Используем локальные.`, 'error');
 
-                // Пробуем загрузить из localStorage
                 const localData = localStorage.getItem(STORAGE_KEYS.LOCAL_DATA);
                 if (localData) {
                     try {
@@ -996,21 +1091,17 @@
             const timestamp = new Date().toLocaleTimeString('ru-RU', {hour12: false});
             logElement.innerHTML = `[${timestamp}] ${message}`;
             logElement.className = `log-message ${type}`;
-
-            // Сохраняем в консоль для отладки
             console.log(`[Турнир] ${message}`);
         }
 
         // ========== ИНИЦИАЛИЗАЦИЯ ==========
         document.addEventListener('DOMContentLoaded', function() {
-            // Обработка Enter в поле пароля
             document.getElementById('passwordInput').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
                     enterEditMode();
                 }
             });
 
-            // Проверяем сохраненную сессию
             if (checkSavedSession()) {
                 showMainContent();
             } else {
@@ -1018,7 +1109,6 @@
                 switchTab('view');
             }
 
-            // Пытаемся сразу загрузить онлайн-данные
             setTimeout(() => {
                 if (document.getElementById('mainContent').style.display !== 'none') {
                     loadOnlineData();
@@ -1028,12 +1118,7 @@
             initProtection();
         });
 
-        // ========== ФУНКЦИИ ТАБЛИЦЫ (ОСТАВЛЯЕМ БЕЗ ИЗМЕНЕНИЙ) ==========
-        // [Все функции от initTable() до exportToExcel() остаются БЕЗ ИЗМЕНЕНИЙ]
-        // Из вашего исходного кода, включая createTable, calculateAll, saveToLocalStorage и т.д.
-        // Для экономии места здесь не дублируем, так как они уже есть в вашем файле
-
-        // ========== НАЧАЛО КОПИРОВАНИЯ ИЗ ВАШЕГО ИСХОДНОГО КОДА ==========
+        // ========== ФУНКЦИИ ТАБЛИЦЫ ==========
         function initTable() {
             createTable();
             loadFromLocalStorage();
@@ -1118,7 +1203,6 @@
                             if (currentMode === 'edit') {
                                 calculateAll();
                                 saveToLocalStorage();
-                                // Автосохранение онлайн каждые 10 секунд после изменения
                                 debouncedOnlineSave();
                             }
                         });
@@ -1138,7 +1222,6 @@
             }
         }
 
-        // Задержка автосохранения онлайн
         let saveTimeout;
         function debouncedOnlineSave() {
             clearTimeout(saveTimeout);
@@ -1146,7 +1229,7 @@
                 if (currentMode === 'edit') {
                     saveOnlineData();
                 }
-            }, 10000); // 10 секунд после последнего изменения
+            }, 10000);
         }
 
         function protectElements() {
@@ -1354,9 +1437,11 @@
                 document.getElementById('minPenalty').textContent = '0';
 
                 localStorage.removeItem(STORAGE_KEYS.LOCAL_DATA);
-                // Также удалим онлайн-файл?
-                if (confirm('Удалить также онлайн-файл с данными?')) {
-                    deleteOnlineData();
+                
+                if (GITHUB_TOKEN && GITHUB_TOKEN.startsWith('ghp_')) {
+                    if (confirm('Удалить также онлайн-файл с данными?')) {
+                        deleteOnlineData();
+                    }
                 }
 
                 alert('Все данные сброшены!');
@@ -1364,8 +1449,8 @@
         }
 
         async function deleteOnlineData() {
-            if (!dataSHA) {
-                alert('Файл данных не найден на сервере');
+            if (!dataSHA || !GITHUB_TOKEN) {
+                alert('Файл данных не найден на сервере или токен отсутствует');
                 return;
             }
 
@@ -1423,9 +1508,13 @@
 
             calculateAll();
             saveToLocalStorage();
-            // Автосохранение онлайн
-            setTimeout(() => saveOnlineData(), 1000);
-            alert('Тестовые данные загружены! Через секунду будут сохранены в облако.');
+            
+            if (GITHUB_TOKEN && GITHUB_TOKEN.startsWith('ghp_')) {
+                setTimeout(() => saveOnlineData(), 1000);
+                alert('Тестовые данные загружены! Через секунду будут сохранены в облако.');
+            } else {
+                alert('Тестовые данные загружены локально. Для сохранения в облако введите GitHub токен.');
+            }
         }
 
         function exportToExcel() {
@@ -1480,54 +1569,4 @@
 
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
-            const date = new Date().toISOString().slice(0,10).replace(/-/g, '');
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `турнир_вихрь_${date}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-
-            alert('Таблица экспортирована в CSV файл!');
-        }
-
-        // ========== ЗАЩИТА ==========
-        function initProtection() {
-            document.addEventListener('contextmenu', function(e) {
-                if (currentMode === 'view') {
-                    e.preventDefault();
-                    showWarning('Режим просмотра. Для редактирования войдите в режим редактирования.');
-                }
-                return false;
-            });
-
-            document.addEventListener('keydown', function(e) {
-                if (e.keyCode === 123 ||
-                    (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) ||
-                    (e.ctrlKey && e.keyCode === 85)) {
-                    e.preventDefault();
-                    showWarning('Горячие клавиши разработчика отключены!');
-                    return false;
-                }
-            });
-
-            console.log('%c ⚠️ ТУРНИРНАЯ ТАБЛИЦА "ВИХРЬ" - ОНЛАЙН ВЕРСИЯ ⚠️ ', 'color: #2c3e50; font-size: 24px; font-weight: bold;');
-            console.log('%c GitHub синхронизация активирована. Данные сохраняются в облако. ', 'color: white; background: #3498db; font-size: 16px;');
-        }
-
-        function showWarning(message) {
-            const warning = document.getElementById('warningMessage');
-            warning.textContent = message;
-            warning.style.display = 'block';
-
-            setTimeout(() => {
-                warning.style.animation = 'fadeOut 0.3s';
-                setTimeout(() => {
-                    warning.style.display = 'none';
-                    warning.style.animation = '';
-                }, 300);
-            }, 3000);
-        }
-    </script>
-    <script src="online.js"></script>
-</body>
-</html>
+            const date = new Date().toISOString().slice(0,10).replace
