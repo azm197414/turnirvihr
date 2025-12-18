@@ -1,12 +1,10 @@
 // ========== НАСТРОЙКИ GITHUB ==========
 const GITHUB_CONFIG = {
-    // URL вашего JSON файла на GitHub (ЗАМЕНИТЕ НА ВАШ!)
+    // URL вашего JSON файла на GitHub
     DATA_URL: 'https://raw.githubusercontent.com/azm197414/turnirvihr/main/data.json',
     
     // Для записи нужен GitHub API токен
-    // Создать: GitHub → Settings → Developer settings → Personal access tokens
-    // Дайте права "repo" или "gist"
-    API_TOKEN: '', // ОСТАВЬТЕ ПУСТЫМ, пока не создадите токен
+    API_TOKEN: '', // ⚠️ ВСТАВЬТЕ СВОЙ ТОКЕН ЗДЕСЬ
     
     REPO: 'azm197414/turnirvihr',
     BRANCH: 'main',
@@ -30,41 +28,38 @@ function initOnlineMode() {
     setTimeout(() => {
         loadFromServer();
     }, 1000);
-    
-    // Сохраняем данные каждую минуту в режиме редактирования
-    if (currentMode === 'edit') {
-        startAutoSave();
-    }
 }
 
 // Создание интерфейса онлайн-режима
 function createOnlineUI() {
     const controls = document.querySelector('.controls');
+    if (!controls) return;
     
-    const onlineControls = document.createElement('div');
-    onlineControls.className = 'online-controls';
-    onlineControls.innerHTML = `
-        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 10px; padding-top: 10px; border-top: 1px solid #ddd;">
-            <strong style="color: #3498db;">🌐 Онлайн-режим:</strong>
-            <button onclick="loadFromServer()" id="loadOnlineBtn" style="background: #2ecc71; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 14px;">
-                🔄 Загрузить с сервера
-            </button>
-            <button onclick="saveToServer()" id="saveOnlineBtn" style="background: #9b59b6; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 14px;" disabled>
-                💾 Сохранить на сервер
-            </button>
-            <button onclick="toggleAutoSync()" id="autoSyncBtn" style="background: #3498db; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 14px;">
-                🔄 Автообновление (выкл)
-            </button>
-            <div id="syncStatus" style="margin-left: auto; font-size: 12px; color: #7f8c8d;">
-                <span id="lastSyncTime">Не синхронизировано</span>
-                <div style="font-size: 10px;">👁️ <span id="onlineCount">1</span> зрителей</div>
+    const onlineControlsHTML = `
+        <div class="online-controls">
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <strong style="color: #3498db;">🌐 Онлайн-режим:</strong>
+                <button onclick="loadFromServer()" id="loadOnlineBtn" style="background: #2ecc71; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 14px;">
+                    🔄 Загрузить с сервера
+                </button>
+                <button onclick="saveToServer()" id="saveOnlineBtn" style="background: #9b59b6; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 14px;" disabled>
+                    💾 Сохранить на сервер
+                </button>
+                <button onclick="toggleAutoSync()" id="autoSyncBtn" style="background: #3498db; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 14px;">
+                    🔄 Автообновление (выкл)
+                </button>
+                <div id="syncStatus" style="margin-left: auto; font-size: 12px; color: #7f8c8d;">
+                    <span id="lastSyncTime">Не синхронизировано</span>
+                    <div style="font-size: 10px;">👁️ <span id="onlineCount">1</span> зрителей</div>
+                </div>
             </div>
         </div>
     `;
     
-    controls.parentNode.insertBefore(onlineControls, controls.nextSibling);
+    // Вставляем после блока controls
+    controls.insertAdjacentHTML('afterend', onlineControlsHTML);
     
-    // Обновляем кнопку сохранения в зависимости от режима
+    // Обновляем кнопку сохранения
     updateSaveButton();
 }
 
@@ -73,15 +68,18 @@ function updateSaveButton() {
     const saveBtn = document.getElementById('saveOnlineBtn');
     if (!saveBtn) return;
     
-    if (currentMode === 'edit' && GITHUB_CONFIG.API_TOKEN) {
+    if (window.currentMode === 'edit' && GITHUB_CONFIG.API_TOKEN) {
         saveBtn.disabled = false;
         saveBtn.title = 'Сохранить данные на GitHub';
-    } else if (currentMode !== 'edit') {
+        saveBtn.style.opacity = '1';
+    } else if (window.currentMode !== 'edit') {
         saveBtn.disabled = true;
         saveBtn.title = 'Только редакторы могут сохранять';
+        saveBtn.style.opacity = '0.5';
     } else if (!GITHUB_CONFIG.API_TOKEN) {
         saveBtn.disabled = true;
         saveBtn.title = 'Добавьте GitHub API токен в настройках';
+        saveBtn.style.opacity = '0.5';
     }
 }
 
@@ -135,7 +133,6 @@ async function loadFromServer() {
                 showNotification('⚠️ Используются кэшированные данные (оффлайн)', 'warning');
                 updateSyncStatus('Оффлайн-режим', 'warning');
             } catch (e) {
-                // Если кэш тоже поврежден
                 showNotification('❌ Не удалось загрузить данные', 'error');
                 updateSyncStatus('Ошибка загрузки', 'error');
             }
@@ -157,7 +154,7 @@ function applyServerData(participantsData) {
     
     // Проходим по всем участникам
     participantsData.forEach((participant, index) => {
-        if (index < participants.length) {
+        if (index < window.participants.length) {
             // Обновляем поля ввода
             const angleInput = document.getElementById(`angle_${index}`);
             const timeLzInput = document.getElementById(`time_lz_${index}`);
@@ -178,17 +175,21 @@ function applyServerData(participantsData) {
     });
     
     // Пересчитываем все результаты
-    calculateAll();
+    if (typeof window.calculateAll === 'function') {
+        window.calculateAll();
+    }
     
     // Сохраняем локально (как резервную копию)
-    saveToLocalStorage();
+    if (typeof window.saveToLocalStorage === 'function') {
+        window.saveToLocalStorage();
+    }
 }
 
 // ========== СОХРАНЕНИЕ ДАННЫХ ==========
 
 // Сохранение данных на сервер
 async function saveToServer() {
-    if (currentMode !== 'edit') {
+    if (window.currentMode !== 'edit') {
         showNotification('❌ Только редакторы могут сохранять данные', 'error');
         return false;
     }
@@ -238,10 +239,10 @@ async function saveToServer() {
 function getCurrentDataForServer() {
     const participantsData = [];
     
-    for (let i = 0; i < participants.length; i++) {
+    for (let i = 0; i < window.participants.length; i++) {
         participantsData.push({
-            team: participants[i].team,
-            name: participants[i].name,
+            team: window.participants[i].team,
+            name: window.participants[i].name,
             angle: parseInt(document.getElementById(`angle_${i}`).value) || 0,
             timeLz: document.getElementById(`time_lz_${i}`).value || '00:00:00',
             timeKz: document.getElementById(`time_kz_${i}`).value || '00:00:00',
@@ -330,18 +331,6 @@ function toggleAutoSync() {
     }
 }
 
-// Автосохранение для редакторов
-function startAutoSave() {
-    if (currentMode === 'edit' && GITHUB_CONFIG.API_TOKEN) {
-        setInterval(() => {
-            // Автосохранение каждые 2 минуты, только если были изменения
-            if (hasUnsavedChanges()) {
-                saveToServer();
-            }
-        }, 120000); // 2 минуты
-    }
-}
-
 // ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
 
 // Показать уведомление
@@ -419,17 +408,10 @@ function updateSyncStatus(message, status = 'info') {
 function updateViewerCount() {
     const countEl = document.getElementById('onlineCount');
     if (countEl) {
-        // Простая эмуляция - всегда показываем хотя бы 1
         const baseCount = 1;
-        const randomAddition = Math.floor(Math.random() * 3); // 0-2 случайных зрителя
+        const randomAddition = Math.floor(Math.random() * 3);
         countEl.textContent = baseCount + randomAddition;
     }
-}
-
-// Проверка на несохраненные изменения
-function hasUnsavedChanges() {
-    // Простая реализация - всегда возвращаем true для автосохранения
-    return currentMode === 'edit';
 }
 
 // Получение текущей версии данных
@@ -453,7 +435,7 @@ function showTokenInstructions() {
             <h3 style="color: #2c3e50; margin-top: 0;">🔑 Настройка GitHub API токена</h3>
             <ol style="text-align: left;">
                 <li>Зайдите на <a href="https://github.com/settings/tokens" target="_blank">GitHub → Settings → Developer settings → Tokens</a></li>
-                <li>Нажмите "Generate new token"</li>
+                <li>Нажмите "Generate new token" (classic)</li>
                 <li>Назовите токен (например, "Турнир Вихрь")</li>
                 <li>Выберите срок действия (рекомендуется "No expiration")</li>
                 <li>В разделе "Select scopes" отметьте <strong>"repo"</strong> (полный контроль репозиториев)</li>
@@ -464,7 +446,7 @@ function showTokenInstructions() {
             <p style="color: #e74c3c; font-size: 12px;">
                 ⚠️ Никому не передавайте токен! Он дает доступ к вашему репозиторию.
             </p>
-            <button onclick="this.parentNode.style.display='none'" style="background: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+            <button onclick="this.parentNode.parentNode.remove()" style="background: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
                 Понятно
             </button>
         </div>
@@ -490,54 +472,17 @@ function showTokenInstructions() {
 
 // ========== ИНИЦИАЛИЗАЦИЯ ==========
 
-// Добавляем CSS анимации
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideIn {
-        from {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
-    }
-    
-    @keyframes slideOut {
-        from {
-            transform: translateX(0);
-            opacity: 1;
-        }
-        to {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-    }
-    
-    .online-controls {
-        transition: all 0.3s;
-    }
-`;
-document.head.appendChild(style);
+// Ждем загрузки страницы
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initOnlineMode);
+} else {
+    // Если страница уже загружена
+    initOnlineMode();
+}
 
-// Ждем загрузки страницы и инициализируем
-document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(() => {
-        if (typeof currentMode !== 'undefined') {
-            initOnlineMode();
-        } else {
-            console.log('Ожидание инициализации основной таблицы...');
-            // Повторная попытка через 2 секунды
-            setTimeout(initOnlineMode, 2000);
-        }
-    }, 500);
-});
-
-// Экспортируем функции для использования в основном скрипте
-window.onlineModule = {
-    loadFromServer,
-    saveToServer,
-    toggleAutoSync,
-    initOnlineMode
-};
+// Обновляем кнопку при смене режима
+setInterval(() => {
+    if (typeof window.currentMode !== 'undefined') {
+        updateSaveButton();
+    }
+}, 1000);
