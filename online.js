@@ -1,7 +1,7 @@
 // ========== ОНЛАЙН-СИНХРОНИЗАЦИЯ ДЛЯ ТУРНИРА "ВИХРЬ" ==========
 
 // КОНФИГУРАЦИЯ
-const GITHUB_TOKEN = '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'; // ЗАМЕНИТЕ НА СВОЙ!
+const GITHUB_TOKEN = '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'; // ЗАМЕНИТЕ НА СВОЙ!
 const REPO = 'azm197414/turnirvihr';
 const DATA_FILE = 'turnir_data.json';
 const DATA_URL = `https://raw.githubusercontent.com/${REPO}/main/${DATA_FILE}`;
