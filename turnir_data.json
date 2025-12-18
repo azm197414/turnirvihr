@@ -1,0 +1,92 @@
+{
+  "participant_0": {
+    "angle": "0",
+    "timeLz": "00:00:00",
+    "timeKz": "00:00:00",
+    "laps": "0",
+    "penalty_gates": "0",
+    "penalty_fall": "0",
+    "penalty_flip": "0"
+  },
+  "participant_1": {
+    "angle": "0",
+    "timeLz": "00:00:00",
+    "timeKz": "00:00:00",
+    "laps": "0",
+    "penalty_gates": "0",
+    "penalty_fall": "0",
+    "penalty_flip": "0"
+  },
+  "participant_2": {
+    "angle": "0",
+    "timeLz": "00:00:00",
+    "timeKz": "00:00:00",
+    "laps": "0",
+    "penalty_gates": "0",
+    "penalty_fall": "0",
+    "penalty_flip": "0"
+  },
+  "participant_3": {
+    "angle": "0",
+    "timeLz": "00:00:00",
+    "timeKz": "00:00:00",
+    "laps": "0",
+    "penalty_gates": "0",
+    "penalty_fall": "0",
+    "penalty_flip": "0"
+  },
+  "participant_4": {
+    "angle": "0",
+    "timeLz": "00:00:00",
+    "timeKz": "00:00:00",
+    "laps": "0",
+    "penalty_gates": "0",
+    "penalty_fall": "0",
+    "penalty_flip": "0"
+  },
+  "participant_5": {
+    "angle": "0",
+    "timeLz": "00:00:00",
+    "timeKz": "00:00:00",
+    "laps": "0",
+    "penalty_gates": "0",
+    "penalty_fall": "0",
+    "penalty_flip": "0"
+  },
+  "participant_6": {
+    "angle": "50",
+    "timeLz": "01:14:11",
+    "timeKz": "00:00:00",
+    "laps": "0",
+    "penalty_gates": "0",
+    "penalty_fall": "0",
+    "penalty_flip": "0"
+  },
+  "participant_7": {
+    "angle": "0",
+    "timeLz": "00:00:00",
+    "timeKz": "00:00:00",
+    "laps": "0",
+    "penalty_gates": "0",
+    "penalty_fall": "0",
+    "penalty_flip": "0"
+  },
+  "participant_8": {
+    "angle": "0",
+    "timeLz": "00:00:00",
+    "timeKz": "00:00:00",
+    "laps": "0",
+    "penalty_gates": "0",
+    "penalty_fall": "0",
+    "penalty_flip": "0"
+  },
+  "participant_9": {
+    "angle": "0",
+    "timeLz": "00:00:00",
+    "timeKz": "00:00:00",
+    "laps": "0",
+    "penalty_gates": "0",
+    "penalty_fall": "0",
+    "penalty_flip": "0"
+  }
+}
