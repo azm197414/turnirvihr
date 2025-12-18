@@ -7,6 +7,53 @@
     <style>
         /* Все стили остаются без изменений */
         /* ... остальные стили ... */
+        /* Стили для онлайн-режима */
+.online-controls {
+    background: #f8f9fa;
+    border-radius: 5px;
+    padding: 10px;
+    margin: 15px 0;
+    border: 2px solid #3498db;
+}
+
+.online-controls button {
+    transition: all 0.3s;
+}
+
+.online-controls button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 3px 5px rgba(0,0,0,0.2);
+}
+
+.online-controls button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* Анимации для уведомлений */
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
     </style>
 </head>
 <body>
