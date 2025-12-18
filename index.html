@@ -911,7 +911,8 @@
             }
         }
 
-        async function saveOnlineData() {
+       
+                async function saveOnlineData() {
             if (currentMode !== 'edit') {
                 logMessage('Только редакторы могут сохранять онлайн', 'error');
                 return false;
@@ -928,18 +929,22 @@
 
             // Собираем все текущие данные
             const data = collectAllData();
+
+            // Обновляем локальное хранилище
             localStorage.setItem(STORAGE_KEYS.LOCAL_DATA, JSON.stringify(data));
 
             setSyncStatus('syncing', 'Сохранение в облако...');
             logMessage('Начинаю сохранение онлайн-данных...', 'info');
 
             try {
+                // Подготовка данных для GitHub API
                 const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
                 const body = {
                     message: `Обновление данных турнира от ${new Date().toLocaleString('ru-RU')}`,
                     content: content
                 };
 
+                // Если у нас есть SHA предыдущей версии, добавляем его для обновления
                 if (dataSHA) {
                     body.sha = dataSHA;
                 }
@@ -968,7 +973,7 @@
                 }
 
                 const result = await response.json();
-                dataSHA = result.content.sha;
+                dataSHA = result.content.sha; // Сохраняем новый SHA
 
                 setSyncStatus('online', `Обновлено: ${new Date().toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'})}`);
                 logMessage(`Данные успешно сохранены в облако!`, 'success');
@@ -982,7 +987,6 @@
                 return false;
             }
         }
-
         async function loadOnlineData() {
             setSyncStatus('syncing', 'Загрузка данных...');
             logMessage('Запрашиваю актуальные данные с сервера...', 'info');
