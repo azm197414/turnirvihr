@@ -404,7 +404,7 @@ function updateSyncStatus(message, status = 'info') {
     }
 }
 
-// Обновление счетчика зрителей
+// Обновление счетчик зрителей
 function updateViewerCount() {
     const countEl = document.getElementById('onlineCount');
     if (countEl) {
