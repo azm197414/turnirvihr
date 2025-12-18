@@ -1,1 +1,14 @@
+# Секретные файлы
+secret.js
+token.js
+config.local.js
 
+# Файлы данных (чтобы не конфликтовали)
+data.json
+
+# Системные файлы
+.DS_Store
+Thumbs.db
+
+# Логи
+*.log
