@@ -1,1 +1,157 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Турнирная таблица "Вихрь" - ПРОСМОТР</title>
+    <style>
+        /* ТВОЙ CSS из index.html - скопируй ВЕСЬ блок <style> */
+        /* Начиная от <style> до </style> */
+    </style>
+</head>
+<body>
+    <!-- КОНТЕЙНЕР (БЕЗ формы пароля!) -->
+    <div class="container">
+        <div class="main-title">
+            ТАБЛИЦА БОЛЬШОГО ЗИМНЕГО ТУРНИРА КЛУБА ПИЛОТОВ БПЛА "ВИХРЬ" - ОНЛАЙН-ПРОСМОТР
+        </div>
 
+        <div id="statusBar" style="margin-bottom: 15px;">
+            <div class="sync-status online">
+                <span class="sync-indicator online"></span>
+                <span>🔄 Автообновление каждые 30 секунд</span>
+            </div>
+            <div id="lastUpdate" style="color: #7f8c8d; font-size: 0.9em; margin-top: 5px;">
+                Последнее обновление: загружаем...
+            </div>
+        </div>
+
+        <!-- ТАБЛИЦА -->
+        <table class="tournament-table" id="tournamentTable">
+            <!-- Скопируй ВСЮ таблицу из index.html -->
+            <!-- От <table class="tournament-table" до </table> -->
+        </table>
+
+        <div class="notes">
+            <p><strong>Онлайн-просмотр:</strong> Данные обновляются автоматически с сервера. 
+               Для внесения изменений обратитесь к организатору турнира.</p>
+            <p id="updateInfo">Загрузка данных...</p>
+        </div>
+    </div>
+
+    <script>
+        // ========== НАСТРОЙКИ ==========
+        const REPO = 'azm197414/turnirvihr';
+        const DATA_FILE = 'turnir_data.json';
+        const DATA_URL = `https://raw.githubusercontent.com/${REPO}/main/${DATA_FILE}`;
+
+        // ========== ДАННЫЕ УЧАСТНИКОВ ==========
+        const participants = [
+            { team: "Интенсив", name: "Ксения Л.", id: 1, teamIndex: 0 },
+            { team: "Интенсив", name: "Святослав Е.", id: 2, teamIndex: 0 },
+            { team: "Прорыв", name: "Никита У.", id: 3, teamIndex: 1 },
+            { team: "Прорыв", name: "Варя А.", id: 4, teamIndex: 1 },
+            { team: "Альфа", name: "Дмитрий В.", id: 5, teamIndex: 2 },
+            { team: "Альфа", name: "Иван Ф.", id: 6, teamIndex: 2 },
+            { team: "Стабильность", name: "Савелий С.", id: 7, teamIndex: 3 },
+            { team: "Стабильность", name: "Богдан Е.", id: 8, teamIndex: 3 },
+            { team: "Мотивация", name: "Артем П.", id: 9, teamIndex: 4 },
+            { team: "Мотивация", name: "Данила Л.", id: 10, teamIndex: 4 }
+        ];
+
+        // ========== ЗАГРУЗКА ДАННЫХ ==========
+        async function loadTournamentData() {
+            try {
+                const response = await fetch(DATA_URL + '?t=' + Date.now());
+                if (!response.ok) throw new Error('Файл не найден');
+                
+                const data = await response.json();
+                updateTable(data);
+                
+                // Обновляем время
+                const now = new Date();
+                document.getElementById('lastUpdate').textContent = 
+                    `Последнее обновление: ${now.toLocaleTimeString('ru-RU')}`;
+                document.getElementById('updateInfo').textContent = 
+                    `Данные загружены: ${now.toLocaleString('ru-RU')}`;
+                    
+                return true;
+            } catch (error) {
+                document.getElementById('updateInfo').textContent = 
+                    'Ошибка загрузки данных. Турнир ещё не начался или данные не загружены.';
+                console.warn('Ошибка загрузки:', error);
+                return false;
+            }
+        }
+
+        // ========== ОБНОВЛЕНИЕ ТАБЛИЦЫ ==========
+        function updateTable(data) {
+            // Создаем таблицу если её нет
+            if (!document.getElementById('tournamentTable').rows.length > 3) {
+                createTable();
+            }
+            
+            // Заполняем данные
+            for (let i = 0; i < participants.length; i++) {
+                const pData = data[`participant_${i}`];
+                if (pData) {
+                    document.getElementById(`angle_${i}`).textContent = pData.angle || '0';
+                    document.getElementById(`time_lz_${i}`).textContent = pData.timeLz || '00:00:00';
+                    document.getElementById(`time_kz_${i}`).textContent = pData.timeKz || '00:00:00';
+                    document.getElementById(`laps_${i}`).textContent = pData.laps || '0';
+                    document.getElementById(`penalty_gates_${i}`).textContent = pData.penalty_gates || '0';
+                    document.getElementById(`penalty_fall_${i}`).textContent = pData.penalty_fall || '0';
+                    document.getElementById(`penalty_flip_${i}`).textContent = pData.penalty_flip || '0';
+                }
+            }
+            
+            // Пересчитываем
+            calculateAll();
+        }
+
+        // ========== СОЗДАНИЕ ТАБЛИЦЫ (аналогично index.html) ==========
+        function createTable() {
+            const table = document.getElementById('tournamentTable');
+            // ... (вставь функцию createTable из твоего index.html) ...
+        }
+
+        // ========== ФУНКЦИИ РАСЧЕТА (аналогично index.html) ==========
+        function calculateAll() {
+            // ... (вставь функцию calculateAll из твоего index.html) ...
+            // УДАЛИ части про сохранение и онлайн-синхронизацию
+        }
+
+        function timeToSeconds(timeStr) {
+            // ... (вставь из index.html) ...
+        }
+
+        function secondsToTime(seconds) {
+            // ... (вставь из index.html) ...
+        }
+
+        // ========== ЗАПУСК ==========
+        document.addEventListener('DOMContentLoaded', function() {
+            // Создаем таблицу
+            createTable();
+            
+            // Загружаем данные сразу
+            loadTournamentData();
+            
+            // Автообновление каждые 30 секунд
+            setInterval(loadTournamentData, 30000);
+            
+            // Блокируем редактирование
+            document.querySelectorAll('input, button').forEach(el => {
+                if (el.tagName === 'INPUT') el.disabled = true;
+                if (el.onclick && el.onclick.toString().includes('saveOnlineData')) {
+                    el.style.display = 'none';
+                }
+            });
+        });
+
+        // Защита от редактирования
+        console.log('%c 🔒 РЕЖИМ ПРОСМОТРА 🔒', 'color: #2c3e50; font-size: 16px; font-weight: bold;');
+        console.log('Таблица доступна только для просмотра.');
+    </script>
+</body>
+</html>
