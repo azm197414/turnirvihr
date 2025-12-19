@@ -43,7 +43,7 @@
             gap: 15px;
         }
         
-        /* Бегущая строка */
+        /* Бегущая строка - оригинальный стиль */
         .marquee-container {
             background: linear-gradient(135deg, #e74c3c, #c0392b);
             color: white;
@@ -565,7 +565,7 @@
             <div class="view-counter">
                 <span class="icon">👁️</span>
                 <span>Просмотров:</span>
-                <span class="count" id="viewCount">0</span>
+                <span class="count" id="viewCount">1</span>
             </div>
         </div>
         
@@ -590,7 +590,7 @@
             
             <div class="status-item">
                 <span>🕐</span>
-                <span>Обновлено: <strong id="updateTime">загрузка...</strong></span>
+                <span>Обновлено: <strong id="updateTime">12:31:03</strong></span>
             </div>
             
             <div class="status-item">
@@ -628,21 +628,21 @@
             <p>• Данные автоматически загружаются с сервера каждые 30 секунд</p>
             <p>• Редактирование таблицы доступно только организатору</p>
             <p>• Для вопросов и уточнений обратитесь к судье турнира</p>
-            <p id="dataInfo">Загрузка данных...</p>
+            <p id="dataInfo">✅ Данные загружены</p>
             
             <!-- Статистика -->
             <div class="stats">
                 <div class="stat-item">
                     <div class="label">Обновлений данных</div>
-                    <div class="value" id="updateCount">0</div>
+                    <div class="value" id="updateCount">1</div>
                 </div>
                 <div class="stat-item">
                     <div class="label">Уникальных просмотров</div>
-                    <div class="value" id="uniqueViews">0</div>
+                    <div class="value" id="uniqueViews">1</div>
                 </div>
                 <div class="stat-item">
                     <div class="label">Сегодня</div>
-                    <div class="value" id="todayViews">0</div>
+                    <div class="value" id="todayViews">1</div>
                 </div>
             </div>
             
@@ -684,15 +684,160 @@
         // ========== ПЕРЕМЕННЫЕ СОСТОЯНИЯ ==========
         let lastUpdateTimestamp = null;
         let isOnline = navigator.onLine;
-        let updateCount = 0;
+        let updateCount = 1;
         let viewsData = {
-            total: 0,
-            unique: 0,
-            today: 0,
+            total: 1,
+            unique: 1,
+            today: 1,
             lastDate: new Date().toDateString()
         };
         let currentLeaders = [];
         let lastMarqueeUpdate = 0;
+        
+        // ========== ФУНКЦИИ ДЛЯ БЕГУЩЕЙ СТРОКИ ==========
+        async function loadMarqueeMessages() {
+            const MARQUEE_URL = `https://raw.githubusercontent.com/${REPO}/main/${MARQUEE_FILE}`;
+            
+            try {
+                const response = await fetch(MARQUEE_URL + '?t=' + Date.now());
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.messages && Array.isArray(data.messages)) {
+                        // Сохраняем сообщения в localStorage для использования при отсутствии интернета
+                        localStorage.setItem('marquee_messages_backup', JSON.stringify({
+                            messages: data.messages,
+                            timestamp: Date.now()
+                        }));
+                        return data.messages;
+                    }
+                }
+            } catch (error) {
+                console.log('Используем локальные сообщения бегущей строки');
+            }
+            
+            // Возвращаем локальные сообщения из localStorage или по умолчанию
+            const backup = localStorage.getItem('marquee_messages_backup');
+            if (backup) {
+                try {
+                    const data = JSON.parse(backup);
+                    return data.messages || getDefaultMarqueeMessages();
+                } catch (e) {
+                    return getDefaultMarqueeMessages();
+                }
+            }
+            
+            return getDefaultMarqueeMessages();
+        }
+        
+        function getDefaultMarqueeMessages() {
+            return [
+                { icon: "🏆", text: "Турнир клуба 'Вихрь' - следите за результатами онлайн!" },
+                { icon: "⏰", text: "Обновление данных каждые 30 секунд" },
+                { icon: "📊", text: "Все формулы расчетов представлены ниже" },
+                { icon: "👁️", text: "Режим реального времени - без задержек" }
+            ];
+        }
+        
+        function updateMarquee() {
+            const now = Date.now();
+            
+            // Обновляем бегущую строку не чаще чем раз в 60 секунд
+            if (now - lastMarqueeUpdate < 60000) {
+                return;
+            }
+            
+            lastMarqueeUpdate = now;
+            
+            loadMarqueeMessages().then(messages => {
+                // Создаем копию сообщений, чтобы не изменять оригинал
+                const displayMessages = [...messages];
+                
+                // Добавляем информацию о лидерах в начало
+                if (currentLeaders.length > 0) {
+                    const leader = currentLeaders[0];
+                    displayMessages.unshift({
+                        icon: "👑",
+                        text: `ЛИДЕР: ${leader.name} (${leader.team}) - ${leader.score.toFixed(2)} баллов`
+                    });
+                    
+                    if (currentLeaders.length >= 2) {
+                        const second = currentLeaders[1];
+                        displayMessages.splice(1, 0, {
+                            icon: "🥈",
+                            text: `2 место: ${second.name} - ${second.score.toFixed(2)} баллов`
+                        });
+                    }
+                    
+                    if (currentLeaders.length >= 3) {
+                        const third = currentLeaders[2];
+                        displayMessages.splice(2, 0, {
+                            icon: "🥉",
+                            text: `3 место: ${third.name} - ${third.score.toFixed(2)} баллов`
+                        });
+                    }
+                }
+                
+                displayMarqueeMessages(displayMessages);
+            }).catch(error => {
+                console.error('Ошибка загрузки бегущей строки:', error);
+                // Используем сообщения по умолчанию
+                const defaultMessages = getDefaultMarqueeMessages();
+                if (currentLeaders.length > 0) {
+                    const leader = currentLeaders[0];
+                    defaultMessages.unshift({
+                        icon: "👑",
+                        text: `ЛИДЕР: ${leader.name} (${leader.team}) - ${leader.score.toFixed(2)} баллов`
+                    });
+                }
+                displayMarqueeMessages(defaultMessages);
+            });
+        }
+        
+        function displayMarqueeMessages(messages) {
+            const marqueeContent = document.querySelector('.marquee-content');
+            const duplicateContent = document.querySelector('.marquee-content:last-child');
+            
+            if (!marqueeContent) return;
+            
+            // Очищаем содержимое
+            marqueeContent.innerHTML = '';
+            if (duplicateContent) duplicateContent.innerHTML = '';
+            
+            // Добавляем сообщения
+            messages.forEach(message => {
+                const item = document.createElement('div');
+                item.className = 'marquee-item';
+                if (message.icon === "👑" || message.icon === "🥈" || message.icon === "🥉") {
+                    item.classList.add('leader-item');
+                }
+                item.innerHTML = `
+                    <span class="icon">${message.icon}</span>
+                    <span class="text">${message.text}</span>
+                `;
+                
+                marqueeContent.appendChild(item.cloneNode(true));
+                if (duplicateContent) duplicateContent.appendChild(item.cloneNode(true));
+            });
+            
+            // Если сообщений мало, дублируем их для плавной анимации
+            if (messages.length < 4) {
+                const cloneMessages = [...messages];
+                cloneMessages.forEach(message => {
+                    const item = document.createElement('div');
+                    item.className = 'marquee-item';
+                    if (message.icon === "👑" || message.icon === "🥈" || message.icon === "🥉") {
+                        item.classList.add('leader-item');
+                    }
+                    item.innerHTML = `
+                        <span class="icon">${message.icon}</span>
+                        <span class="text">${message.text}</span>
+                    `;
+                    
+                    marqueeContent.appendChild(item.cloneNode(true));
+                    if (duplicateContent) duplicateContent.appendChild(item.cloneNode(true));
+                });
+            }
+        }
         
         // ========== ОПРЕДЕЛЕНИЕ ЛИДЕРОВ ==========
         function determineLeaders() {
@@ -728,8 +873,8 @@
             // Обновляем доску лидеров
             updateLeadersBoard();
             
-            // Обновляем бегущую строку с информацией о лидерах
-            updateMarqueeWithLeaders();
+            // Обновляем бегущую строку
+            updateMarquee();
             
             return currentLeaders;
         }
@@ -806,164 +951,9 @@
             }
         }
         
-        // ========== БЕГУЩАЯ СТРОКА С ЛИДЕРАМИ ==========
-        function updateMarqueeWithLeaders() {
-            const now = Date.now();
-            
-            // Обновляем бегущую строку не чаще чем раз в 2 минуты
-            if (now - lastMarqueeUpdate < 120000 && currentLeaders.length > 0) {
-                return;
-            }
-            
-            lastMarqueeUpdate = now;
-            
-            const messages = [];
-            
-            // Добавляем информацию о лидерах
-            if (currentLeaders.length > 0) {
-                const leader = currentLeaders[0];
-                messages.push({
-                    icon: "👑",
-                    text: `ЛИДЕР: ${leader.name} (${leader.team}) - ${leader.score.toFixed(2)} баллов`
-                });
-                
-                if (currentLeaders.length >= 2) {
-                    const second = currentLeaders[1];
-                    messages.push({
-                        icon: "🥈",
-                        text: `2 место: ${second.name} - ${second.score.toFixed(2)} баллов`
-                    });
-                }
-                
-                if (currentLeaders.length >= 3) {
-                    const third = currentLeaders[2];
-                    messages.push({
-                        icon: "🥉",
-                        text: `3 место: ${third.name} - ${third.score.toFixed(2)} баллов`
-                    });
-                }
-            }
-            
-            // Добавляем общие сообщения
-            messages.push(
-                { icon: "🏆", text: "Турнир клуба 'Вихрь' - следите за результатами онлайн!" },
-                { icon: "⏰", text: "Обновление данных каждые 30 секунд" },
-                { icon: "📊", text: "Все формулы расчетов представлены ниже" },
-                { icon: "👁️", text: "Режим реального времени - без задержек" }
-            );
-            
-            displayMarqueeMessages(messages);
-        }
-        
-        function displayMarqueeMessages(messages) {
-            const marqueeContent = document.querySelector('.marquee-content');
-            const duplicateContent = document.querySelector('.marquee-content:last-child');
-            
-            if (!marqueeContent) return;
-            
-            // Очищаем содержимое
-            marqueeContent.innerHTML = '';
-            if (duplicateContent) duplicateContent.innerHTML = '';
-            
-            // Добавляем сообщения
-            messages.forEach(message => {
-                const item = document.createElement('div');
-                item.className = 'marquee-item';
-                if (message.icon === "👑" || message.icon === "🥈" || message.icon === "🥉") {
-                    item.classList.add('leader-item');
-                }
-                item.innerHTML = `
-                    <span class="icon">${message.icon}</span>
-                    <span class="text">${message.text}</span>
-                `;
-                
-                marqueeContent.appendChild(item.cloneNode(true));
-                if (duplicateContent) duplicateContent.appendChild(item.cloneNode(true));
-            });
-            
-            // Если сообщений мало, дублируем их для плавной анимации
-            if (messages.length < 4) {
-                messages.forEach(message => {
-                    const item = document.createElement('div');
-                    item.className = 'marquee-item';
-                    if (message.icon === "👑" || message.icon === "🥈" || message.icon === "🥉") {
-                        item.classList.add('leader-item');
-                    }
-                    item.innerHTML = `
-                        <span class="icon">${message.icon}</span>
-                        <span class="text">${message.text}</span>
-                    `;
-                    
-                    marqueeContent.appendChild(item.cloneNode(true));
-                    if (duplicateContent) duplicateContent.appendChild(item.cloneNode(true));
-                });
-            }
-        }
-        
-        // ========== УНИКАЛЬНЫЙ ID ПОЛЬЗОВАТЕЛЯ ==========
-        function getUserId() {
-            let userId = localStorage.getItem('turnir_user_id');
-            if (!userId) {
-                userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                localStorage.setItem('turnir_user_id', userId);
-            }
-            return userId;
-        }
-        
         // ========== СЧЕТЧИК ПРОСМОТРОВ ==========
         function updateViewsCounter() {
-            const userId = getUserId();
-            const today = new Date().toDateString();
-            
-            const backup = localStorage.getItem('turnir_views_backup');
-            if (backup) {
-                try {
-                    const data = JSON.parse(backup);
-                    viewsData = data.views || viewsData;
-                    const userVisits = data.userVisits || {};
-                    
-                    if (viewsData.lastDate !== today) {
-                        viewsData.today = 0;
-                        viewsData.lastDate = today;
-                    }
-                    
-                    if (!userVisits[userId] || userVisits[userId] !== today) {
-                        viewsData.total++;
-                        viewsData.today++;
-                        if (!userVisits[userId]) {
-                            viewsData.unique++;
-                        }
-                        userVisits[userId] = today;
-                        
-                        localStorage.setItem('turnir_views_backup', JSON.stringify({
-                            views: viewsData,
-                            userVisits: userVisits,
-                            timestamp: Date.now()
-                        }));
-                    }
-                } catch (e) {
-                    console.log('Ошибка восстановления данных счетчика');
-                }
-            } else {
-                viewsData.total = 1;
-                viewsData.unique = 1;
-                viewsData.today = 1;
-                viewsData.lastDate = today;
-                
-                const userVisits = {};
-                userVisits[userId] = today;
-                
-                localStorage.setItem('turnir_views_backup', JSON.stringify({
-                    views: viewsData,
-                    userVisits: userVisits,
-                    timestamp: Date.now()
-                }));
-            }
-            
-            updateViewsDisplay();
-        }
-        
-        function updateViewsDisplay() {
+            // Упрощенная версия для отображения
             document.getElementById('viewCount').textContent = viewsData.total;
             document.getElementById('uniqueViews').textContent = viewsData.unique;
             document.getElementById('todayViews').textContent = viewsData.today;
@@ -1010,6 +1000,7 @@
             const table = document.getElementById('tournamentTable');
             table.innerHTML = '';
             
+            // Заголовок 1
             const headerRow1 = table.insertRow();
             headerRow1.innerHTML = `
                 <th rowspan="3" class="section-header divider-team-participant divider-section-results">Команда</th>
@@ -1020,6 +1011,7 @@
                 <th colspan="2" class="section-header divider-section-results">Результаты</th>
             `;
             
+            // Заголовок 2
             const headerRow2 = table.insertRow();
             headerRow2.innerHTML = `
                 <th class="divider-lithoff-angle-time divider-section-results">Угол</th>
@@ -1035,6 +1027,7 @@
                 <th class="divider-section-results">Командный<br>балл</th>
             `;
             
+            // Заголовок 3 (Макс/Мин значения)
             const headerRow3 = table.insertRow();
             headerRow3.className = 'max-min-row';
             headerRow3.innerHTML = `
@@ -1052,6 +1045,7 @@
                 <td class="divider-results-personal-team" colspan="2"></td>
             `;
             
+            // Данные участников
             participants.forEach((participant, index) => {
                 const row = table.insertRow();
                 const isFirstInTeam = index === 0 || participants[index-1].team !== participant.team;
@@ -1248,6 +1242,13 @@
             }
         }
         
+        function updateViewsDisplay() {
+            document.getElementById('viewCount').textContent = viewsData.total;
+            document.getElementById('uniqueViews').textContent = viewsData.unique;
+            document.getElementById('todayViews').textContent = viewsData.today;
+            document.getElementById('updateCount').textContent = updateCount;
+        }
+        
         // ========== ИНИЦИАЛИЗАЦИЯ ==========
         document.addEventListener('DOMContentLoaded', function() {
             createTable();
@@ -1256,7 +1257,7 @@
             updateViewsCounter();
             
             // Инициализируем бегущую строку с сообщениями по умолчанию
-            updateMarqueeWithLeaders();
+            updateMarquee();
             
             document.getElementById('refreshBtn').addEventListener('click', () => {
                 loadTournamentData(true);
@@ -1273,25 +1274,34 @@
                 showNotification('Отсутствует подключение к интернету', 'error', 5000);
             });
             
+            // Показываем загрузку
             showLoading(true);
+            
+            // Загружаем данные с задержкой для демонстрации
             setTimeout(() => {
-                loadTournamentData().then(() => {
-                    showLoading(false);
-                    
-                    setInterval(() => {
-                        loadTournamentData();
-                    }, UPDATE_INTERVAL);
+                loadTournamentData().then(success => {
+                    if (success) {
+                        showLoading(false);
+                        
+                        // Интервал для обновления данных турнира
+                        setInterval(() => {
+                            loadTournamentData();
+                        }, UPDATE_INTERVAL);
+                        
+                        // Интервал для обновления бегущей строки (реже)
+                        setInterval(() => {
+                            updateMarquee();
+                        }, 60000);
+                    } else {
+                        // Если загрузка не удалась, показываем таблицу с пустыми данными
+                        showLoading(false);
+                        calculateAll();
+                    }
                 });
-            }, 500);
+            }, 1000);
             
             document.addEventListener('contextmenu', (e) => {
                 e.preventDefault();
-            });
-            
-            document.addEventListener('visibilitychange', () => {
-                if (!document.hidden) {
-                    updateViewsCounter();
-                }
             });
         });
     </script>
