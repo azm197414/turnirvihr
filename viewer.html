@@ -5,163 +5,272 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Турнирная таблица "Вихрь" - ОНЛАЙН ПРОСМОТР</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
+        
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f5f5;
-            padding: 20px;
+            font-family: 'Arial', sans-serif;
             margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
         }
+        
         .container {
-            max-width: 95vw;
+            max-width: 100%;
             margin: 0 auto;
-            overflow-x: auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
         }
-        .tournament-table {
-            border-collapse: collapse;
-            background-color: white;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-            font-size: 0.85em;
-            min-width: 1600px;
-            border: 2px solid #2c3e50;
-        }
-        .tournament-table th, .tournament-table td {
-            border: 2px solid #95a5a6;
-            padding: 6px 8px;
-            text-align: center;
-            vertical-align: middle;
-            min-width: 70px;
-        }
-        .tournament-table th {
-            background-color: #2c3e50;
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
             color: white;
-            font-weight: bold;
-            border: 2px solid #34495e;
-        }
-        .input-cell {
-            background-color: #fff;
-        }
-        .result-cell {
-            background-color: #e8f4fd;
-            font-weight: bold;
-            color: #2c3e50;
-        }
-        .team-header {
-            background-color: #ecf0f1;
-            font-weight: bold;
-        }
-        .participant-row {
-            background-color: #f8f9fa;
-        }
-        .notes {
-            font-size: 0.9em;
-            color: #7f8c8d;
-            margin-top: 10px;
-            padding: 10px;
-            background-color: #ecf0f1;
-            border-left: 4px solid #3498db;
-        }
-        .calculated-cell {
-            background-color: #e8f6f3;
-            font-weight: bold;
-        }
-        .personal-score {
-            background-color: #d5f4e6;
-            font-weight: bold;
-        }
-        .team-score {
-            background-color: #fef9e7;
-            font-weight: bold;
-            font-size: 1.1em;
-        }
-        .error-cell {
-            background-color: #fadbd8;
-            color: #c0392b;
-            font-weight: bold;
-        }
-        .participant-name {
-            white-space: nowrap;
-            text-align: left;
-            padding-left: 10px;
-            font-weight: bold;
-        }
-        .team-name {
-            font-weight: bold;
-            font-size: 1em;
-        }
-        .header-name {
-            font-weight: bold;
-        }
-        .main-title {
-            background-color: #2c3e50;
-            color: white;
-            padding: 15px;
+            padding: 25px;
             text-align: center;
-            font-size: 1.3em;
-            font-weight: bold;
-            margin-bottom: 20px;
-            border-radius: 5px;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .status-bar {
+            background: #f8f9fa;
+            padding: 15px 25px;
+            border-bottom: 2px solid #e9ecef;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 15px;
+            background: white;
+            border-radius: 20px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-        .max-min-cell {
-            background-color: #d6dbdf;
-            font-weight: bold;
+        
+        .online-indicator {
+            width: 10px;
+            height: 10px;
+            background: #2ecc71;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
         }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .refresh-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .refresh-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .refresh-btn:active {
+            transform: translateY(0);
+        }
+        
+        .refresh-btn.loading {
+            background: #7f8c8d;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            padding: 20px;
+        }
+        
+        /* 1. Общая рамка всей таблицы - Темно синяя */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1400px;
+            font-size: 14px;
+            border: 3px solid #1a5276; /* Темно-синяя рамка */
+            box-shadow: 0 0 0 1px #1a5276; /* Дополнительная рамка */
+        }
+        
+        th {
+            background: #2c3e50;
+            color: white;
+            padding: 12px 8px;
+            font-weight: bold;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        td {
+            padding: 10px 8px;
+            border: 1px solid #e0e0e0;
+            text-align: center;
+        }
+        
+        /* 2-6. Разделители между основными секциями */
+        .divider-team-participant {
+            border-right: 2px solid white !important;
+        }
+        
+        .divider-participant-lithoff {
+            border-right: 2px solid white !important;
+        }
+        
+        .divider-lithoff-quadrosim {
+            border-right: 2px solid white !important;
+        }
+        
+        .divider-quadrosim-track {
+            border-right: 2px solid white !important;
+        }
+        
+        .divider-track-results {
+            border-right: 2px solid white !important;
+        }
+        
+        /* 7. Разделители внутри секции Литофф */
+        .divider-lithoff-angle-time {
+            border-right: 1px solid white !important;
+        }
+        
+        .divider-lithoff-time-score {
+            border-right: 1px solid white !important;
+        }
+        
+        /* 8. Разделитель внутри секции Квадросим */
+        .divider-quadrosim-time-score {
+            border-right: 1px solid white !important;
+        }
+        
+        /* 9. Разделители внутри секции Трассы */
+        .divider-track-laps-penalties {
+            border-right: 1px solid white !important;
+        }
+        
+        .divider-track-penalties-total {
+            border-right: 1px solid white !important;
+        }
+        
+        .divider-track-total-score {
+            border-right: 1px solid white !important;
+        }
+        
+        /* 10. Разделитель внутри секции Результаты */
+        .divider-results-personal-team {
+            border-right: 1px solid white !important;
+        }
+        
+        /* 11. Разделитель между названиями разделов и их результатами */
+        .divider-section-results {
+            border-bottom: 2px solid white !important;
+        }
+        
+        /* Стили для ячеек */
+        .team-cell {
+            background: #ecf0f1;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        .name-cell {
+            text-align: left;
+            font-weight: bold;
+            background: #f8f9fa;
+        }
+        
+        .result-cell {
+            background: #e3f2fd;
+            font-weight: bold;
+            color: #1565c0;
+        }
+        
+        .team-score-cell {
+            background: #fff3e0;
+            font-weight: bold;
+            font-size: 16px;
+            color: #e65100;
+        }
+        
         .penalty-header {
-            background-color: #f8d7da;
+            background: #ffebee;
             color: #721c24;
         }
         
-        /* Статус синхронизации */
-        .sync-status {
-            display: inline-flex;
-            align-items: center;
-            padding: 8px 15px;
-            border-radius: 20px;
+        .max-min-row td {
+            background: #f5f5f5;
             font-weight: bold;
-            font-size: 0.9em;
+            color: #555;
+            font-size: 12px;
         }
-        .sync-status.online {
-            background-color: #2ecc71;
-            color: white;
-        }
-        .sync-status.offline {
-            background-color: #e74c3c;
-            color: white;
-        }
-        .sync-indicator {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            margin-right: 8px;
-        }
-        .sync-indicator.online { background-color: #2ecc71; }
-        .sync-indicator.offline { background-color: #e74c3c; }
         
-        /* Индикатор загрузки */
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.95);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
+        .input-cell {
+            background: white;
+        }
+        
+        .section-header {
+            background: #2c3e50;
+            color: white;
+        }
+        
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            border-top: 2px solid #e9ecef;
+            font-size: 14px;
+            color: #6c757d;
+        }
+        
+        .footer strong {
+            color: #2c3e50;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+        
+        .loading.active {
+            display: block;
         }
         
         .loader {
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #3498db;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
             border-radius: 50%;
-            width: 60px;
-            height: 60px;
+            width: 40px;
+            height: 40px;
             animation: spin 1s linear infinite;
-            margin-bottom: 20px;
+            margin: 0 auto 15px;
         }
         
         @keyframes spin {
@@ -169,32 +278,18 @@
             100% { transform: rotate(360deg); }
         }
         
-        /* Уведомления */
         .notification {
             position: fixed;
             top: 20px;
             right: 20px;
-            padding: 15px 25px;
-            border-radius: 8px;
+            padding: 15px 20px;
+            background: #2ecc71;
             color: white;
-            font-weight: bold;
-            z-index: 1001;
-            animation: slideIn 0.3s ease-out;
-            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
-            max-width: 400px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
             display: none;
-        }
-        
-        .notification.success {
-            background-color: #2ecc71;
-        }
-        
-        .notification.error {
-            background-color: #e74c3c;
-        }
-        
-        .notification.info {
-            background-color: #3498db;
+            z-index: 1000;
+            animation: slideIn 0.3s;
         }
         
         @keyframes slideIn {
@@ -208,194 +303,99 @@
             }
         }
         
-        .refresh-btn {
-            background: none;
-            border: none;
-            color: #3498db;
-            cursor: pointer;
-            font-size: 1.2em;
-            margin-left: 10px;
-            padding: 5px;
-            border-radius: 50%;
-            width: 35px;
-            height: 35px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
+        .notification.error {
+            background: #e74c3c;
         }
         
-        .refresh-btn:hover {
-            background-color: rgba(52, 152, 219, 0.1);
+        .notification.info {
+            background: #3498db;
         }
         
-        .refresh-btn.loading {
-            animation: rotate 1s linear infinite;
-        }
-        
-        @keyframes rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-        
-        .data-age {
-            font-size: 0.8em;
-            font-weight: 600;
-            padding: 3px 8px;
-            border-radius: 12px;
-            margin-left: 10px;
-        }
-        
-        .data-age.fresh {
-            background-color: rgba(46, 204, 113, 0.15);
-            color: #27ae60;
-        }
-        
-        .data-age.stale {
-            background-color: rgba(243, 156, 18, 0.15);
-            color: #d68910;
-        }
-        
-        .data-age.old {
-            background-color: rgba(231, 76, 60, 0.15);
-            color: #c0392b;
-        }
-        
-        .connection-status {
-            display: inline-flex;
-            align-items: center;
-            padding: 8px 16px;
-            border-radius: 25px;
-            font-size: 0.85em;
-            font-weight: 600;
-        }
-        
-        .connection-status.online {
-            background-color: rgba(46, 204, 113, 0.15);
-            color: #27ae60;
-            border: 2px solid rgba(39, 174, 96, 0.3);
-        }
-        
-        .connection-status.offline {
-            background-color: rgba(231, 76, 60, 0.15);
-            color: #c0392b;
-            border: 2px solid rgba(192, 57, 43, 0.3);
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 18px;
+            }
+            
+            .status-bar {
+                padding: 10px;
+            }
+            
+            .table-container {
+                padding: 10px;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Индикатор загрузки -->
-    <div id="loadingOverlay" class="loading-overlay">
-        <div class="loader"></div>
-        <div id="loadingText" style="font-size: 1.1em; font-weight: 600; color: #2c3e50;">Загрузка турнирной таблицы...</div>
-    </div>
-    
-    <!-- Уведомления -->
-    <div id="notification" class="notification"></div>
-
-    <!-- ОСНОВНОЙ КОНТЕНТ -->
     <div class="container">
-        <div class="main-title">
-            🏆 ТУРНИРНАЯ ТАБЛИЦА КЛУБА "ВИХРЬ" - ОНЛАЙН ПРОСМОТР 🏆
+        <div class="header">
+            <h1>
+                <span>🏆</span>
+                Турнирная таблица клуба "Вихрь"
+                <span>🏆</span>
+            </h1>
+            <p style="margin-top: 10px; opacity: 0.9;">Онлайн-просмотр в реальном времени</p>
         </div>
-
-        <div id="statusBar" style="margin-bottom: 20px; display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
-            <div class="sync-status online">
-                <span class="sync-indicator online"></span>
-                <span style="font-weight: bold;">ОНЛАЙН-РЕЖИМ</span>
-                <span style="margin-left: 10px; font-size: 0.9em;">Обновляется каждые 30 секунд</span>
+        
+        <div class="status-bar">
+            <div class="status-item">
+                <span class="online-indicator"></span>
+                <span>ОНЛАЙН</span>
             </div>
             
-            <div id="lastUpdate" style="background: #e8f4fd; padding: 8px 15px; border-radius: 5px; font-size: 0.9em; display: flex; align-items: center;">
-                <span style="font-weight: 600;">⏱️ Последнее обновление:</span>
-                <span id="updateTime" style="margin-left: 8px; font-weight: 600;">загружаем...</span>
-                <button id="manualRefresh" class="refresh-btn" title="Обновить вручную">🔄</button>
-                <span id="dataAge" class="data-age fresh"></span>
+            <div class="status-item">
+                <span>🕐</span>
+                <span>Обновлено: <strong id="updateTime">загрузка...</strong></span>
             </div>
             
-            <div style="background: #d5f4e6; padding: 8px 15px; border-radius: 5px; font-size: 0.9em; display: flex; align-items: center;">
-                <span style="margin-right: 8px;">👁️</span>
-                <strong>Только просмотр</strong>
+            <div class="status-item">
+                <span>👁️</span>
+                <span>Режим просмотра</span>
             </div>
             
-            <div id="connectionStatus" class="connection-status online">
-                <span style="margin-right: 8px;">●</span>
-                <span id="connectionText">Соединение установлено</span>
-            </div>
+            <button class="refresh-btn" id="refreshBtn">
+                <span>🔄</span>
+                <span>Обновить</span>
+            </button>
         </div>
-
-        <!-- ТАБЛИЦА -->
-        <table class="tournament-table" id="tournamentTable">
-            <!-- Основные заголовки -->
-            <tr>
-                <th rowspan="3" class="header-name">Команда</th>
-                <th rowspan="3" class="header-name">Участник</th>
-                <th colspan="3" class="header-name">Литофф</th>
-                <th colspan="2" class="header-name">Квадросим</th>
-                <th colspan="4" class="header-name">Реальная трасса</th>
-                <th rowspan="3" class="header-name">Баллы ЛЗ</th>
-                <th rowspan="3" class="header-name">Баллы КЗ</th>
-            </tr>
-
-            <tr>
-                <!-- Литофф подзаголовки -->
-                <th class="header-name">Угол</th>
-                <th class="header-name">Время (ММ:СС:МС)</th>
-                <th class="header-name">Баллы</th>
-                <!-- Квадросим подзаголовки -->
-                <th class="header-name">Время (ММ:СС:МС)</th>
-                <th class="header-name">Баллы</th>
-                <!-- Трасса подзаголовки -->
-                <th class="header-name">Кол-во кругов</th>
-                <th colspan="3" class="penalty-header">Штрафы (кол-во нарушений)</th>
-                <th class="header-name">Сумма штрафов</th>
-                <th class="header-name">Баллы трассы</th>
-            </tr>
-
-            <tr class="max-min-cell">
-                <!-- Литофф формулы для максимума/минимума -->
-                <td>Максимум<br><span id="maxAngle">0</span></td>
-                <td>Минимум<br><span id="minTimeLz">00:00:00</span></td>
-                <td>Максимум<br><span id="maxScoreLz">0.00</span></td>
-                <!-- Квадросим формулы для минимума -->
-                <td>Минимум<br><span id="minTimeKz">00:00:00</span></td>
-                <td>Максимум<br><span id="maxScoreKz">0.00</span></td>
-                <!-- Трасса формулы для максимума/минимума -->
-                <td>Максимум<br><span id="maxLaps">0</span></td>
-                <td class="penalty-header">Ворота<br>(-5)</td>
-                <td class="penalty-header">Падение<br>(-10)</td>
-                <td class="penalty-header">Переворот<br>(-20)</td>
-                <td>Сумма<br><span id="minPenalty">0</span></td>
-                <td>Максимум<br><span id="maxScoreTrack">0.00</span></td>
-                <!-- Пустые для выравнивания -->
-                <td></td>
-                <td></td>
-            </tr>
-
-            <!-- Данные участников будут заполняться JavaScript -->
-        </table>
-
-        <div class="notes">
+        
+        <div class="loading" id="loading">
+            <div class="loader"></div>
+            <p>Загрузка данных турнира...</p>
+        </div>
+        
+        <div class="table-container" id="tableContainer">
+            <table id="tournamentTable">
+                <!-- Таблица будет создана JavaScript -->
+            </table>
+        </div>
+        
+        <div class="footer">
             <p><strong>📊 Онлайн-просмотр результатов турнира</strong></p>
             <p>• Данные автоматически загружаются с сервера каждые 30 секунд</p>
             <p>• Редактирование таблицы доступно только организатору</p>
             <p>• Для вопросов и уточнений обратитесь к судье турнира</p>
-            <p id="dataInfo" style="font-weight: bold; color: #3498db;">Загрузка данных...</p>
+            <p id="dataInfo">Загрузка данных...</p>
             
-            <p><strong>Формулы расчетов:</strong></p>
-            <ul>
-                <li><strong>Баллы Литофф:</strong> = (Угол участника/МАКС_Угол × 70) + (МИН_Время/Время учасника × 30)</li>
-                <li><strong>Баллы Квадросим:</strong> = (МИН_Время/Время учасника) × 100</li>
-                <li><strong>Баллы Трассы:</strong> = (Круги участника/МАКС_Круги × 100) − Сумма_штрафов</li>
-            
+            <p style="margin-top: 15px;"><strong>Формулы расчетов:</strong></p>
+            <ul style="margin: 5px 0; padding-left: 20px;">
+                <li><strong>Баллы Литофф:</strong> = (Угол/МАКС_Угол × 70) + (МИН_Время_ЛЗ/Время_ЛЗ × 30)</li>
+                <li><strong>Баллы Квадросим:</strong> = (МИН_Время_КЗ × 100) / Время_КЗ</li>
+                <li><strong>Баллы Трассы:</strong> = (Круги/МАКС_Круги × 100) − Сумма_штрафов</li>
+                <li><strong>Итоговый балл:</strong> = Баллы ЛЗ + Баллы КЗ + Баллы Трассы</li>
             </ul>
         </div>
     </div>
+    
+    <div class="notification" id="notification"></div>
 
     <script>
         // ========== НАСТРОЙКИ ==========
-        const REPO = 'azm197414/turnirvihr';
-        const DATA_FILE = 'turnir_data.json';
-        const DATA_URL = `https://raw.githubusercontent.com/${REPO}/main/${DATA_FILE}`;
+        const DATA_URL = 'https://raw.githubusercontent.com/azm197414/turnirvihr/main/turnir_data.json';
         const UPDATE_INTERVAL = 30000; // 30 секунд
         
         // ========== ДАННЫЕ УЧАСТНИКОВ ==========
@@ -411,11 +411,7 @@
             { team: "Мотивация", name: "Артем П.", id: 9, teamIndex: 4 },
             { team: "Мотивация", name: "Данила Л.", id: 10, teamIndex: 4 }
         ];
-
-        // ========== ПЕРЕМЕННЫЕ СОСТОЯНИЯ ==========
-        let lastUpdateTimestamp = null;
-        let isOnline = navigator.onLine;
-
+        
         // ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
         function showNotification(message, type = 'info', duration = 3000) {
             const notification = document.getElementById('notification');
@@ -427,57 +423,12 @@
                 notification.style.display = 'none';
             }, duration);
         }
-
+        
         function showLoading(show) {
-            const overlay = document.getElementById('loadingOverlay');
-            overlay.style.display = show ? 'flex' : 'none';
+            document.getElementById('loading').classList.toggle('active', show);
+            document.getElementById('tableContainer').style.display = show ? 'none' : 'block';
         }
-
-        function updateConnectionStatus() {
-            const statusElement = document.getElementById('connectionStatus');
-            const textElement = document.getElementById('connectionText');
-            
-            if (isOnline) {
-                statusElement.className = 'connection-status online';
-                textElement.textContent = 'Соединение установлено';
-            } else {
-                statusElement.className = 'connection-status offline';
-                textElement.textContent = 'Нет соединения';
-                showNotification('Отсутствует подключение к интернету', 'error', 5000);
-            }
-        }
-
-        function updateDataAgeIndicator() {
-            if (!lastUpdateTimestamp) return;
-            
-            const ageElement = document.getElementById('dataAge');
-            const now = Date.now();
-            const age = Math.floor((now - lastUpdateTimestamp) / 1000);
-            const minutes = Math.floor(age / 60);
-            
-            let text, className;
-            
-            if (age < 30) {
-                text = `только что`;
-                className = 'fresh';
-            } else if (age < 60) {
-                text = `${age} сек назад`;
-                className = 'fresh';
-            } else if (age < 300) {
-                text = `${minutes} мин назад`;
-                className = 'fresh';
-            } else if (age < 600) {
-                text = `${minutes} мин назад`;
-                className = 'stale';
-            } else {
-                text = `${minutes} мин назад`;
-                className = 'old';
-            }
-            
-            ageElement.textContent = text;
-            ageElement.className = `data-age ${className}`;
-        }
-
+        
         function timeToSeconds(timeStr) {
             if (!timeStr || timeStr === '00:00:00') return 0;
             const parts = timeStr.split(':');
@@ -485,10 +436,9 @@
             const minutes = parseInt(parts[0]) || 0;
             const seconds = parseInt(parts[1]) || 0;
             const milliseconds = parseInt(parts[2]) || 0;
-            if (isNaN(minutes) || isNaN(seconds) || isNaN(milliseconds)) return 0;
             return minutes * 60 + seconds + (milliseconds / 100);
         }
-
+        
         function secondsToTime(seconds) {
             if (seconds <= 0) return '00:00:00';
             const mins = Math.floor(seconds / 60);
@@ -496,190 +446,209 @@
             const ms = Math.round((seconds - Math.floor(seconds)) * 100);
             return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}:${ms.toString().padStart(2, '0')}`;
         }
-
-        // ========== СОЗДАНИЕ ТАБЛИЦЫ ==========
+        
+        // ========== СОЗДАНИЕ ТАБЛИЦЫ СО ВСЕМИ РАЗДЕЛИТЕЛЯМИ ==========
         function createTable() {
             const table = document.getElementById('tournamentTable');
-
-            // Очищаем только строки с данными (оставляем 3 строки заголовков)
-            while (table.rows.length > 3) {
-                table.deleteRow(3);
-            }
-
+            table.innerHTML = '';
+            
+            // Первая строка заголовков (основные секции) - БЕЛЫЙ разделитель снизу
+            const headerRow1 = table.insertRow();
+            headerRow1.innerHTML = `
+                <th rowspan="3" class="section-header divider-team-participant divider-section-results">Команда</th>
+                <th rowspan="3" class="section-header divider-participant-lithoff divider-section-results">Участник</th>
+                <th colspan="3" class="section-header divider-lithoff-quadrosim divider-section-results">Литофф</th>
+                <th colspan="2" class="section-header divider-quadrosim-track divider-section-results">Квадросим</th>
+                <th colspan="6" class="section-header divider-track-results divider-section-results">Реальная трасса</th>
+                <th colspan="2" class="section-header divider-section-results">Результаты</th>
+            `;
+            
+            // Вторая строка заголовков (подсекции) - БЕЛЫЙ разделитель снизу
+            const headerRow2 = table.insertRow();
+            headerRow2.innerHTML = `
+                <th class="divider-lithoff-angle-time divider-section-results">Угол</th>
+                <th class="divider-lithoff-time-score divider-section-results">Время<br>(ММ:СС:МС)</th>
+                <th class="divider-section-results">Баллы</th>
+                <th class="divider-quadrosim-time-score divider-section-results">Время<br>(ММ:СС:МС)</th>
+                <th class="divider-section-results">Баллы</th>
+                <th class="divider-track-laps-penalties divider-section-results">Кол-во<br>кругов</th>
+                <th colspan="3" class="penalty-header divider-section-results">Штрафы<br>(кол-во нарушений)</th>
+                <th class="divider-track-penalties-total divider-section-results">Сумма<br>штрафов</th>
+                <th class="divider-track-total-score divider-section-results">Баллы<br>трассы</th>
+                <th class="divider-results-personal-team divider-section-results">Итоговый<br>балл</th>
+                <th class="divider-section-results">Командный<br>балл</th>
+            `;
+            
+            // Третья строка (максимумы/минимумы)
+            const headerRow3 = table.insertRow();
+            headerRow3.className = 'max-min-row';
+            headerRow3.innerHTML = `
+                <td class="divider-lithoff-angle-time">Макс<br><span id="maxAngle">0</span></td>
+                <td class="divider-lithoff-time-score">Мин<br><span id="minTimeLz">00:00:00</span></td>
+                <td>Макс<br><span id="maxScoreLz">0.00</span></td>
+                <td class="divider-quadrosim-time-score">Мин<br><span id="minTimeKz">00:00:00</span></td>
+                <td>Макс<br><span id="maxScoreKz">0.00</span></td>
+                <td class="divider-track-laps-penalties">Макс<br><span id="maxLaps">0</span></td>
+                <td class="penalty-header">Ворота<br>(-5)</td>
+                <td class="penalty-header">Падение<br>(-10)</td>
+                <td class="penalty-header">Переворот<br>(-20)</td>
+                <td class="divider-track-penalties-total">Мин<br><span id="minPenalty">0</span></td>
+                <td class="divider-track-total-score">Макс<br><span id="maxScoreTrack">0.00</span></td>
+                <td class="divider-results-personal-team" colspan="2"></td>
+            `;
+            
+            // Добавляем участников
             participants.forEach((participant, index) => {
                 const row = table.insertRow();
                 const isFirstInTeam = index === 0 || participants[index-1].team !== participant.team;
-
-                if (isFirstInTeam) {
-                    row.className = 'team-header';
-                } else {
-                    row.className = 'participant-row';
-                }
-
+                
                 if (isFirstInTeam) {
                     row.innerHTML = `
-                        <td rowspan="2" class="team-name">"${participant.team}"</td>
-                        <td class="participant-name">${participant.name}</td>
-                        <td class="input-cell"><span id="angle_${index}">0</span></td>
-                        <td class="input-cell"><span id="time_lz_${index}">00:00:00</span></td>
+                        <td rowspan="2" class="team-cell divider-team-participant">${participant.team}</td>
+                        <td class="name-cell divider-participant-lithoff">${participant.name}</td>
+                        <td class="input-cell divider-lithoff-angle-time" id="angle_${index}">0</td>
+                        <td class="input-cell divider-lithoff-time-score" id="time_lz_${index}">00:00:00</td>
                         <td class="result-cell" id="score_lz_${index}">—</td>
-                        <td class="input-cell"><span id="time_kz_${index}">00:00:00</span></td>
+                        <td class="input-cell divider-quadrosim-time-score" id="time_kz_${index}">00:00:00</td>
                         <td class="result-cell" id="score_kz_${index}">—</td>
-                        <td class="input-cell"><span id="laps_${index}">0</span></td>
-                        <td class="input-cell"><span id="penalty_gates_${index}">0</span></td>
-                        <td class="input-cell"><span id="penalty_fall_${index}">0</span></td>
-                        <td class="input-cell"><span id="penalty_flip_${index}">0</span></td>
-                        <td class="calculated-cell" id="total_penalty_${index}">0</td>
-                        <td class="result-cell" id="score_track_${index}">—</td>
-                        <td class="personal-score" id="personal_score_${index}">—</td>
-                        <td rowspan="2" class="team-score" id="team_score_${participant.teamIndex}">—</td>
+                        <td class="input-cell divider-track-laps-penalties" id="laps_${index}">0</td>
+                        <td class="input-cell" id="penalty_gates_${index}">0</td>
+                        <td class="input-cell" id="penalty_fall_${index}">0</td>
+                        <td class="input-cell" id="penalty_flip_${index}">0</td>
+                        <td class="input-cell divider-track-penalties-total" id="total_penalty_${index}">0</td>
+                        <td class="result-cell divider-track-total-score" id="score_track_${index}">—</td>
+                        <td class="result-cell divider-results-personal-team" id="personal_score_${index}">—</td>
+                        <td rowspan="2" class="team-score-cell" id="team_score_${participant.teamIndex}">—</td>
                     `;
                 } else {
                     row.innerHTML = `
-                        <td class="participant-name">${participant.name}</td>
-                        <td class="input-cell"><span id="angle_${index}">0</span></td>
-                        <td class="input-cell"><span id="time_lz_${index}">00:00:00</span></td>
+                        <td class="name-cell divider-participant-lithoff">${participant.name}</td>
+                        <td class="input-cell divider-lithoff-angle-time" id="angle_${index}">0</td>
+                        <td class="input-cell divider-lithoff-time-score" id="time_lz_${index}">00:00:00</td>
                         <td class="result-cell" id="score_lz_${index}">—</td>
-                        <td class="input-cell"><span id="time_kz_${index}">00:00:00</span></td>
+                        <td class="input-cell divider-quadrosim-time-score" id="time_kz_${index}">00:00:00</td>
                         <td class="result-cell" id="score_kz_${index}">—</td>
-                        <td class="input-cell"><span id="laps_${index}">0</span></td>
-                        <td class="input-cell"><span id="penalty_gates_${index}">0</span></td>
-                        <td class="input-cell"><span id="penalty_fall_${index}">0</span></td>
-                        <td class="input-cell"><span id="penalty_flip_${index}">0</span></td>
-                        <td class="calculated-cell" id="total_penalty_${index}">0</td>
-                        <td class="result-cell" id="score_track_${index}">—</td>
-                        <td class="personal-score" id="personal_score_${index}">—</td>
+                        <td class="input-cell divider-track-laps-penalties" id="laps_${index}">0</td>
+                        <td class="input-cell" id="penalty_gates_${index}">0</td>
+                        <td class="input-cell" id="penalty_fall_${index}">0</td>
+                        <td class="input-cell" id="penalty_flip_${index}">0</td>
+                        <td class="input-cell divider-track-penalties-total" id="total_penalty_${index}">0</td>
+                        <td class="result-cell divider-track-total-score" id="score_track_${index}">—</td>
+                        <td class="result-cell divider-results-personal-team" id="personal_score_${index}">—</td>
                     `;
                 }
             });
         }
-
+        
         // ========== РАСЧЕТ РЕЗУЛЬТАТОВ ==========
         function calculateAll() {
             const participantsData = [];
-
+            
+            // Собираем данные участников
             for (let i = 0; i < participants.length; i++) {
                 const gates = parseInt(document.getElementById(`penalty_gates_${i}`).textContent) || 0;
                 const falls = parseInt(document.getElementById(`penalty_fall_${i}`).textContent) || 0;
                 const flips = parseInt(document.getElementById(`penalty_flip_${i}`).textContent) || 0;
                 const totalPenalty = (gates * 5) + (falls * 10) + (flips * 20);
-
+                
+                document.getElementById(`total_penalty_${i}`).textContent = totalPenalty;
+                
                 participantsData.push({
                     index: i,
                     angle: parseFloat(document.getElementById(`angle_${i}`).textContent) || 0,
                     timeLz: timeToSeconds(document.getElementById(`time_lz_${i}`).textContent),
                     timeKz: timeToSeconds(document.getElementById(`time_kz_${i}`).textContent),
                     laps: parseFloat(document.getElementById(`laps_${i}`).textContent) || 0,
-                    gates: gates,
-                    falls: falls,
-                    flips: flips,
                     totalPenalty: totalPenalty,
                     teamIndex: participants[i].teamIndex
                 });
-                
-                document.getElementById(`total_penalty_${i}`).textContent = totalPenalty;
             }
-
-            const maxAngle = Math.max(...participantsData.filter(p => p.angle > 0).map(p => p.angle), 0);
-            const minTimeLz = Math.min(...participantsData.filter(p => p.timeLz > 0).map(p => p.timeLz), Infinity);
-            const minTimeKz = Math.min(...participantsData.filter(p => p.timeKz > 0).map(p => p.timeKz), Infinity);
-            const maxLaps = Math.max(...participantsData.filter(p => p.laps > 0).map(p => p.laps), 0);
-            const minTotalPenalty = Math.min(...participantsData.filter(p => p.totalPenalty > 0).map(p => p.totalPenalty), 0);
-
+            
+            // Находим максимумы и минимумы
+            const maxAngle = Math.max(...participantsData.map(p => p.angle));
+            const minTimeLz = Math.min(...participantsData.filter(p => p.timeLz > 0).map(p => p.timeLz));
+            const minTimeKz = Math.min(...participantsData.filter(p => p.timeKz > 0).map(p => p.timeKz));
+            const maxLaps = Math.max(...participantsData.map(p => p.laps));
+            const minPenalty = Math.min(...participantsData.filter(p => p.totalPenalty > 0).map(p => p.totalPenalty));
+            
+            // Обновляем отображение максимумов/минимумов
             document.getElementById('maxAngle').textContent = maxAngle > 0 ? maxAngle.toFixed(1) : '0';
-            document.getElementById('minTimeLz').textContent = minTimeLz < Infinity ? secondsToTime(minTimeLz) : '00:00:00';
-            document.getElementById('minTimeKz').textContent = minTimeKz < Infinity ? secondsToTime(minTimeKz) : '00:00:00';
+            document.getElementById('minTimeLz').textContent = minTimeLz > 0 ? secondsToTime(minTimeLz) : '00:00:00';
+            document.getElementById('minTimeKz').textContent = minTimeKz > 0 ? secondsToTime(minTimeKz) : '00:00:00';
             document.getElementById('maxLaps').textContent = maxLaps > 0 ? maxLaps : '0';
-            document.getElementById('minPenalty').textContent = minTotalPenalty > 0 ? minTotalPenalty : '0';
-
+            document.getElementById('minPenalty').textContent = minPenalty > 0 ? minPenalty : '0';
+            
+            // Рассчитываем баллы для каждого участника
             let maxScoreLz = 0, maxScoreKz = 0, maxScoreTrack = 0;
-
+            const teamScores = [0, 0, 0, 0, 0];
+            
             participantsData.forEach(data => {
                 const i = data.index;
-
-                let scoreLz = "—";
-                if (maxAngle > 0 && data.angle > 0 && minTimeLz < Infinity && data.timeLz > 0) {
-                    const calculated = ((data.angle / maxAngle) * 70) + ((minTimeLz / data.timeLz) * 30);
-                    scoreLz = calculated.toFixed(2);
-                    maxScoreLz = Math.max(maxScoreLz, calculated);
+                
+                // Баллы Литофф
+                let scoreLz = 0;
+                if (maxAngle > 0 && data.angle > 0 && minTimeLz > 0 && data.timeLz > 0) {
+                    scoreLz = ((data.angle / maxAngle) * 70) + ((minTimeLz / data.timeLz) * 30);
+                    maxScoreLz = Math.max(maxScoreLz, scoreLz);
                 }
-
-                let scoreKz = "—";
-                if (minTimeKz < Infinity && data.timeKz > 0) {
-                    const calculated = (minTimeKz * 100) / data.timeKz;
-                    scoreKz = calculated.toFixed(2);
-                    maxScoreKz = Math.max(maxScoreKz, calculated);
+                document.getElementById(`score_lz_${i}`).textContent = scoreLz > 0 ? scoreLz.toFixed(2) : '—';
+                
+                // Баллы Квадросим
+                let scoreKz = 0;
+                if (minTimeKz > 0 && data.timeKz > 0) {
+                    scoreKz = (minTimeKz * 100) / data.timeKz;
+                    maxScoreKz = Math.max(maxScoreKz, scoreKz);
                 }
-
-                let scoreTrack = "—";
+                document.getElementById(`score_kz_${i}`).textContent = scoreKz > 0 ? scoreKz.toFixed(2) : '—';
+                
+                // Баллы Трассы
+                let scoreTrack = 0;
                 if (maxLaps > 0 && data.laps > 0) {
-                    const calculated = (data.laps / maxLaps) * 100 - data.totalPenalty;
-                    scoreTrack = calculated > 0 ? calculated.toFixed(2) : "0.00";
-                    maxScoreTrack = Math.max(maxScoreTrack, calculated > 0 ? calculated : 0);
+                    const baseScore = (data.laps / maxLaps) * 100;
+                    scoreTrack = baseScore - data.totalPenalty;
+                    if (scoreTrack < 0) scoreTrack = 0;
+                    maxScoreTrack = Math.max(maxScoreTrack, scoreTrack);
                 }
-
-                let personalScore = "—";
-                if (scoreLz !== "—" && scoreKz !== "—" && scoreTrack !== "—") {
-                    const total = parseFloat(scoreLz) + parseFloat(scoreKz) + parseFloat(scoreTrack);
-                    personalScore = total.toFixed(2);
+                document.getElementById(`score_track_${i}`).textContent = scoreTrack > 0 ? scoreTrack.toFixed(2) : '—';
+                
+                // Итоговый балл
+                const totalScore = scoreLz + scoreKz + scoreTrack;
+                document.getElementById(`personal_score_${i}`).textContent = totalScore > 0 ? totalScore.toFixed(2) : '—';
+                
+                // Добавляем к командному баллу
+                if (totalScore > 0) {
+                    teamScores[data.teamIndex] += totalScore;
                 }
-
-                document.getElementById(`score_lz_${i}`).textContent = scoreLz;
-                document.getElementById(`score_lz_${i}`).className = scoreLz === "—" ? "error-cell" : "result-cell";
-                document.getElementById(`score_kz_${i}`).textContent = scoreKz;
-                document.getElementById(`score_kz_${i}`).className = scoreKz === "—" ? "error-cell" : "result-cell";
-                document.getElementById(`score_track_${i}`).textContent = scoreTrack;
-                document.getElementById(`score_track_${i}`).className = scoreTrack === "—" ? "error-cell" : "result-cell";
-                document.getElementById(`personal_score_${i}`).textContent = personalScore;
-                document.getElementById(`personal_score_${i}`).className = personalScore === "—" ? "error-cell" : "personal-score";
             });
-
+            
+            // Обновляем отображение максимальных баллов
             document.getElementById('maxScoreLz').textContent = maxScoreLz.toFixed(2);
             document.getElementById('maxScoreKz').textContent = maxScoreKz.toFixed(2);
             document.getElementById('maxScoreTrack').textContent = maxScoreTrack.toFixed(2);
-
-            const teamScores = {};
-            participantsData.forEach(data => {
-                if (!teamScores[data.teamIndex]) teamScores[data.teamIndex] = 0;
-                const personalScore = document.getElementById(`personal_score_${data.index}`).textContent;
-                if (personalScore !== "—") {
-                    teamScores[data.teamIndex] += parseFloat(personalScore);
-                }
+            
+            // Обновляем командные баллы
+            teamScores.forEach((score, index) => {
+                document.getElementById(`team_score_${index}`).textContent = score > 0 ? score.toFixed(2) : '—';
             });
-
-            for (let i = 0; i < 5; i++) {
-                const teamScoreElement = document.getElementById(`team_score_${i}`);
-                if (teamScores[i] > 0) {
-                    teamScoreElement.textContent = teamScores[i].toFixed(2);
-                    teamScoreElement.className = "team-score";
-                } else {
-                    teamScoreElement.textContent = "—";
-                    teamScoreElement.className = "error-cell";
-                }
-            }
         }
-
+        
         // ========== ЗАГРУЗКА ДАННЫХ ==========
         async function loadTournamentData(manual = false) {
-            if (!isOnline) {
-                showNotification('Нет подключения к интернету', 'error', 5000);
-                return false;
-            }
-            
             if (manual) {
-                document.getElementById('manualRefresh').classList.add('loading');
+                showLoading(true);
+                document.getElementById('refreshBtn').classList.add('loading');
             }
             
             try {
                 const response = await fetch(DATA_URL + '?t=' + Date.now());
                 
                 if (!response.ok) {
-                    throw new Error(`Ошибка сервера: ${response.status}`);
+                    throw new Error('Ошибка загрузки данных');
                 }
                 
                 const data = await response.json();
                 
-                // Заполняем таблицу данными
+                // Обновляем данные в таблице
                 for (let i = 0; i < participants.length; i++) {
                     const pData = data[`participant_${i}`];
                     if (pData) {
@@ -693,97 +662,61 @@
                     }
                 }
                 
-                // Выполняем расчеты
+                // Пересчитываем результаты
                 calculateAll();
                 
-                lastUpdateTimestamp = Date.now();
+                // Обновляем время
                 const now = new Date();
-                
                 document.getElementById('updateTime').textContent = now.toLocaleTimeString('ru-RU');
                 document.getElementById('dataInfo').textContent = `✅ Данные загружены: ${now.toLocaleString('ru-RU')}`;
                 
-                updateDataAgeIndicator();
-                
                 if (manual) {
-                    showNotification('Данные успешно обновлены', 'success', 2000);
+                    showNotification('Данные успешно обновлены', 'success');
                 }
-                
-                return true;
                 
             } catch (error) {
                 console.error('Ошибка загрузки:', error);
+                document.getElementById('dataInfo').textContent = '⏳ Ожидание данных турнира...';
                 
                 if (manual) {
-                    showNotification('Ошибка при загрузке данных', 'error', 3000);
-                } else {
-                    document.getElementById('dataInfo').textContent = '⏳ Ожидание данных турнира...';
+                    showNotification('Ошибка при загрузке данных', 'error');
                 }
-                
-                return false;
             } finally {
                 if (manual) {
+                    showLoading(false);
                     setTimeout(() => {
-                        document.getElementById('manualRefresh').classList.remove('loading');
+                        document.getElementById('refreshBtn').classList.remove('loading');
                     }, 500);
                 }
             }
         }
-
-        // ========== ОБРАБОТЧИКИ СОБЫТИЙ ==========
-        function setupEventListeners() {
-            // Кнопка ручного обновления
-            document.getElementById('manualRefresh').addEventListener('click', () => {
+        
+        // ========== ИНИЦИАЛИЗАЦИЯ ==========
+        document.addEventListener('DOMContentLoaded', function() {
+            // Создаем таблицу
+            createTable();
+            
+            // Настраиваем кнопку обновления
+            document.getElementById('refreshBtn').addEventListener('click', () => {
                 loadTournamentData(true);
             });
             
-            // Отслеживание состояния сети
-            window.addEventListener('online', () => {
-                isOnline = true;
-                updateConnectionStatus();
-                showNotification('Соединение восстановлено', 'success', 3000);
-                loadTournamentData();
-            });
-            
-            window.addEventListener('offline', () => {
-                isOnline = false;
-                updateConnectionStatus();
-            });
-        }
-
-        // ========== ИНИЦИАЛИЗАЦИЯ ==========
-        document.addEventListener('DOMContentLoaded', function() {
-            // Создание таблицы
-            createTable();
-            
-            // Настройка обработчиков событий
-            setupEventListeners();
-            
             // Начальная загрузка данных
             showLoading(true);
-            
             setTimeout(() => {
-                loadTournamentData().then(success => {
+                loadTournamentData().then(() => {
                     showLoading(false);
-                    if (success) {
-                        // Запуск автообновления
-                        setInterval(() => {
-                            loadTournamentData();
-                        }, UPDATE_INTERVAL);
-                    } else {
-                        // Если данные не загрузились, все равно создаем пустую таблицу
-                        calculateAll();
-                        showNotification('Используются локальные данные', 'warning', 3000);
-                    }
+                    
+                    // Запускаем автообновление
+                    setInterval(() => {
+                        loadTournamentData();
+                    }, UPDATE_INTERVAL);
                 });
             }, 500);
             
-            // Обновление статуса соединения
-            updateConnectionStatus();
-            
             // Защита от редактирования
-            document.addEventListener('contextmenu', function(e) {
+            document.addEventListener('contextmenu', (e) => {
                 e.preventDefault();
-                return false;
             });
         });
     </script>
