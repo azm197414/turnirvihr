@@ -289,412 +289,10 @@
             text-align: center;
             font-weight: bold;
         }
-
-        /* Новые стили для улучшений */
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.95);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            display: none;
-        }
-        
-        .loader {
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #3498db;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            animation: spin 1s linear infinite;
-            margin-bottom: 20px;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 25px;
-            border-radius: 8px;
-            color: white;
-            font-weight: bold;
-            z-index: 1001;
-            animation: slideIn 0.3s ease-out;
-            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
-            max-width: 400px;
-            display: none;
-        }
-        
-        .notification.success {
-            background: linear-gradient(135deg, #2ecc71, #27ae60);
-        }
-        
-        .notification.error {
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
-        }
-        
-        .notification.info {
-            background: linear-gradient(135deg, #3498db, #2980b9);
-        }
-        
-        .notification.warning {
-            background: linear-gradient(135deg, #f39c12, #d68910);
-        }
-        
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-        
-        @keyframes slideOut {
-            from {
-                transform: translateX(0);
-                opacity: 1;
-            }
-            to {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-        }
-        
-        .refresh-btn {
-            background: none;
-            border: none;
-            color: #3498db;
-            cursor: pointer;
-            font-size: 1.2em;
-            margin-left: 10px;
-            transition: transform 0.3s;
-            padding: 5px;
-            border-radius: 50%;
-            width: 35px;
-            height: 35px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .refresh-btn:hover {
-            background-color: rgba(52, 152, 219, 0.1);
-            transform: rotate(90deg);
-        }
-        
-        .refresh-btn:active {
-            transform: rotate(180deg);
-        }
-        
-        .refresh-btn.loading {
-            animation: rotate 1s linear infinite;
-            pointer-events: none;
-        }
-        
-        @keyframes rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-        
-        .data-age {
-            font-size: 0.8em;
-            font-weight: 600;
-            padding: 3px 8px;
-            border-radius: 12px;
-            margin-left: 10px;
-        }
-        
-        .data-age.fresh {
-            background-color: rgba(46, 204, 113, 0.15);
-            color: #27ae60;
-        }
-        
-        .data-age.stale {
-            background-color: rgba(243, 156, 18, 0.15);
-            color: #d68910;
-        }
-        
-        .data-age.old {
-            background-color: rgba(231, 76, 60, 0.15);
-            color: #c0392b;
-        }
-        
-        .connection-status {
-            display: inline-flex;
-            align-items: center;
-            padding: 8px 16px;
-            border-radius: 25px;
-            font-size: 0.85em;
-            font-weight: 600;
-        }
-        
-        .connection-status.online {
-            background: linear-gradient(135deg, rgba(46, 204, 113, 0.15), rgba(39, 174, 96, 0.1));
-            color: #27ae60;
-            border: 2px solid rgba(39, 174, 96, 0.3);
-        }
-        
-        .connection-status.offline {
-            background: linear-gradient(135deg, rgba(231, 76, 60, 0.15), rgba(192, 57, 43, 0.1));
-            color: #c0392b;
-            border: 2px solid rgba(192, 57, 43, 0.3);
-        }
-        
-        .connection-status.syncing {
-            background: linear-gradient(135deg, rgba(52, 152, 219, 0.15), rgba(41, 128, 185, 0.1));
-            color: #2980b9;
-            border: 2px solid rgba(41, 128, 185, 0.3);
-        }
-        
-        .status-dot {
-            display: inline-block;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            margin-right: 8px;
-            animation: pulse 2s infinite;
-        }
-        
-        .status-dot.online {
-            background-color: #2ecc71;
-            animation: pulseOnline 2s infinite;
-        }
-        
-        .status-dot.offline {
-            background-color: #e74c3c;
-        }
-        
-        .status-dot.syncing {
-            background-color: #3498db;
-            animation: pulseSync 1s infinite;
-        }
-        
-        @keyframes pulseOnline {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        
-        @keyframes pulseSync {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.2); opacity: 0.7; }
-        }
-        
-        .auto-refresh-indicator {
-            display: inline-flex;
-            align-items: center;
-            margin-left: 15px;
-            padding: 4px 10px;
-            background-color: rgba(52, 152, 219, 0.1);
-            border-radius: 12px;
-            font-size: 0.8em;
-            color: #2980b9;
-        }
-        
-        .countdown {
-            font-family: monospace;
-            font-weight: bold;
-            margin-left: 5px;
-            min-width: 25px;
-            display: inline-block;
-        }
-        
-        .system-status-panel {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            margin-top: 20px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
-            border-left: 4px solid #3498db;
-        }
-        
-        .system-status-panel h3 {
-            margin-top: 0;
-            color: #2c3e50;
-            border-bottom: 2px solid #ecf0f1;
-            padding-bottom: 10px;
-        }
-        
-        .status-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid #f8f9fa;
-        }
-        
-        .status-item:last-child {
-            border-bottom: none;
-        }
-        
-        .status-label {
-            font-weight: 600;
-            color: #2c3e50;
-        }
-        
-        .status-value {
-            font-weight: 600;
-        }
-        
-        .status-value.good {
-            color: #27ae60;
-        }
-        
-        .status-value.warning {
-            color: #f39c12;
-        }
-        
-        .status-value.error {
-            color: #e74c3c;
-        }
-        
-        .status-value.info {
-            color: #3498db;
-        }
-        
-        .version-info {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 0.8em;
-            color: #7f8c8d;
-            padding-top: 15px;
-            border-top: 1px solid #ecf0f1;
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
-        }
-        
-        .stat-card {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            border-top: 4px solid #3498db;
-        }
-        
-        .stat-card h4 {
-            margin-top: 0;
-            color: #2c3e50;
-            font-size: 0.9em;
-            margin-bottom: 10px;
-        }
-        
-        .stat-value {
-            font-size: 1.8em;
-            font-weight: bold;
-            color: #2c3e50;
-        }
-        
-        .stat-trend {
-            font-size: 0.8em;
-            margin-top: 5px;
-        }
-        
-        .stat-trend.up {
-            color: #27ae60;
-        }
-        
-        .stat-trend.down {
-            color: #e74c3c;
-        }
-        
-        .stat-trend.neutral {
-            color: #7f8c8d;
-        }
-        
-        .tooltip {
-            position: relative;
-            display: inline-block;
-            cursor: help;
-        }
-        
-        .tooltip .tooltiptext {
-            visibility: hidden;
-            width: 250px;
-            background-color: #2c3e50;
-            color: white;
-            text-align: center;
-            border-radius: 6px;
-            padding: 10px;
-            position: absolute;
-            z-index: 1;
-            bottom: 125%;
-            left: 50%;
-            margin-left: -125px;
-            opacity: 0;
-            transition: opacity 0.3s;
-            font-size: 0.85em;
-            font-weight: normal;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
-        
-        .tooltip .tooltiptext::after {
-            content: "";
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            margin-left: -5px;
-            border-width: 5px;
-            border-style: solid;
-            border-color: #2c3e50 transparent transparent transparent;
-        }
-        
-        .tooltip:hover .tooltiptext {
-            visibility: visible;
-            opacity: 1;
-        }
-        
-        @media (max-width: 768px) {
-            .main-title {
-                font-size: 1.1em;
-                padding: 12px;
-            }
-            
-            .sync-status {
-                padding: 6px 12px;
-                font-size: 0.8em;
-            }
-            
-            .notification {
-                max-width: 90%;
-                left: 5%;
-                right: 5%;
-            }
-            
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-        }
     </style>
 </head>
 <body>
-    <!-- Индикатор загрузки -->
-    <div id="loadingOverlay" class="loading-overlay">
-        <div class="loader"></div>
-        <div id="loadingText" style="font-size: 1.1em; font-weight: 600; color: #2c3e50;">Загрузка данных турнира...</div>
-        <div id="loadingSubtext" style="margin-top: 10px; color: #7f8c8d; font-size: 0.9em;"></div>
-    </div>
-    
-    <!-- Уведомления -->
-    <div id="notification" class="notification"></div>
-
-    <!-- ОСНОВНОЙ КОНТЕНТ -->
+    <!-- ОСНОВНОЙ КОНТЕНТ (БЕЗ формы пароля!) -->
     <div class="container">
         <div class="main-title">
             🏆 ТУРНИРНАЯ ТАБЛИЦА КЛУБА "ВИХРЬ" - ОНЛАЙН ПРОСМОТР 🏆
@@ -706,29 +304,11 @@
                 <span style="font-weight: bold;">ОНЛАЙН-РЕЖИМ</span>
                 <span style="margin-left: 10px; font-size: 0.9em;">Обновляется каждые 30 секунд</span>
             </div>
-            
-            <div id="lastUpdate" style="background: #e8f4fd; padding: 8px 15px; border-radius: 5px; font-size: 0.9em; display: flex; align-items: center;">
-                <span style="font-weight: 600;">⏱️ Последнее обновление:</span>
-                <span id="updateTime" style="margin-left: 8px; font-weight: 600;">загружаем...</span>
-                <button id="manualRefresh" class="refresh-btn" title="Обновить вручную">🔄</button>
-                <span id="dataAge" class="data-age fresh"></span>
+            <div id="lastUpdate" style="background: #e8f4fd; padding: 8px 15px; border-radius: 5px; font-size: 0.9em;">
+                ⏱️ Последнее обновление: <span id="updateTime">загружаем...</span>
             </div>
-            
-            <div style="background: #d5f4e6; padding: 8px 15px; border-radius: 5px; font-size: 0.9em; display: flex; align-items: center;">
-                <span style="margin-right: 8px;">👁️</span>
-                <strong>Только просмотр</strong>
-                <span style="margin-left: 8px; font-size: 0.85em;">- редактирование недоступно</span>
-            </div>
-            
-            <div id="connectionStatus" class="connection-status online">
-                <span class="status-dot online"></span>
-                <span id="connectionText">Соединение установлено</span>
-            </div>
-            
-            <div class="auto-refresh-indicator">
-                <span>Автообновление через:</span>
-                <span id="countdown" class="countdown">30</span>
-                <span>сек</span>
+            <div style="background: #d5f4e6; padding: 8px 15px; border-radius: 5px; font-size: 0.9em;">
+                👁️ <strong>Только просмотр</strong> - редактирование недоступно
             </div>
         </div>
 
@@ -740,7 +320,7 @@
                 <th rowspan="3" class="header-name">Участник</th>
                 <th colspan="3" class="header-name">Литофф</th>
                 <th colspan="2" class="header-name">Квадросим</th>
-                <th colspan="4" class="header-name">Реальная трасса</th>
+                <th colspan="7" class="header-name">Реальная трасса</th>
                 <th rowspan="3" class="header-name">Баллы ЛЗ</th>
                 <th rowspan="3" class="header-name">Баллы КЗ</th>
             </tr>
@@ -762,19 +342,19 @@
 
             <tr class="max-min-cell">
                 <!-- Литофф формулы для максимума/минимума -->
-                <td>Максимум<br><span id="maxAngle" class="tooltip">0<span class="tooltiptext">Максимальный угол наклона среди всех участников</span></span></td>
-                <td>Минимум<br><span id="minTimeLz" class="tooltip">00:00:00<span class="tooltiptext">Минимальное время выполнения Литофф</span></span></td>
-                <td>Максимум<br><span id="maxScoreLz" class="tooltip">0.00<span class="tooltiptext">Максимальные баллы за Литофф</span></span></td>
+                <td>Максимум<br><span id="maxAngle">0</span></td>
+                <td>Минимум<br><span id="minTimeLz">00:00:00</span></td>
+                <td>Максимум<br><span id="maxScoreLz">0.00</span></td>
                 <!-- Квадросим формулы для минимума -->
-                <td>Минимум<br><span id="minTimeKz" class="tooltip">00:00:00<span class="tooltiptext">Минимальное время в Квадросиме</span></span></td>
-                <td>Максимум<br><span id="maxScoreKz" class="tooltip">0.00<span class="tooltiptext">Максимальные баллы за Квадросим</span></span></td>
+                <td>Минимум<br><span id="minTimeKz">00:00:00</span></td>
+                <td>Максимум<br><span id="maxScoreKz">0.00</span></td>
                 <!-- Трасса формулы для максимума/минимума -->
-                <td>Максимум<br><span id="maxLaps" class="tooltip">0<span class="tooltiptext">Максимальное количество кругов на трассе</span></span></td>
-                <td class="penalty-header">Ворота<br>(-5)<span class="tooltiptext">Пропуск ворот: -5 баллов за каждое нарушение</span></td>
-                <td class="penalty-header">Падение<br>(-10)<span class="tooltiptext">Падение дрона: -10 баллов за каждое</span></td>
-                <td class="penalty-header">Переворот<br>(-20)<span class="tooltiptext">Переворот дрона: -20 баллов за каждое</span></td>
-                <td>Сумма<br><span id="minPenalty" class="tooltip">0<span class="tooltiptext">Минимальная сумма штрафов</span></span></td>
-                <td>Максимум<br><span id="maxScoreTrack" class="tooltip">0.00<span class="tooltiptext">Максимальные баллы за трассу</span></span></td>
+                <td>Максимум<br><span id="maxLaps">0</span></td>
+                <td class="penalty-header">Ворота<br>(-5)</td>
+                <td class="penalty-header">Падение<br>(-10)</td>
+                <td class="penalty-header">Переворот<br>(-20)</td>
+                <td>Сумма<br><span id="minPenalty">0</span></td>
+                <td>Максимум<br><span id="maxScoreTrack">0.00</span></td>
                 <!-- Пустые для выравнивания -->
                 <td></td>
                 <td></td>
@@ -796,57 +376,6 @@
                 <li><strong>Баллы Квадросим:</strong> = (МИН_Время_КЗ × 100) / Время_КЗ</li>
                 <li><strong>Баллы Трассы:</strong> = (Круги/МАКС_Круги × 100) − Сумма_штрафов</li>
             </ul>
-            
-            <div class="system-status-panel">
-                <h3>📈 Статистика и состояние системы</h3>
-                <div class="status-item">
-                    <span class="status-label">Статус соединения:</span>
-                    <span id="systemConnectionStatus" class="status-value good">Проверка...</span>
-                </div>
-                <div class="status-item">
-                    <span class="status-label">Сервер данных:</span>
-                    <span id="systemServerStatus" class="status-value info">Проверка...</span>
-                </div>
-                <div class="status-item">
-                    <span class="status-label">Автообновление:</span>
-                    <span id="systemAutoUpdateStatus" class="status-value good">Активно (30 сек)</span>
-                </div>
-                <div class="status-item">
-                    <span class="status-label">Последняя синхронизация:</span>
-                    <span id="systemLastSyncTime" class="status-value info">ожидание данных</span>
-                </div>
-                <div class="status-item">
-                    <span class="status-label">Время работы:</span>
-                    <span id="systemUptime" class="status-value info">00:00:00</span>
-                </div>
-                
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <h4>Участников</h4>
-                        <div class="stat-value" id="statParticipants">10</div>
-                        <div class="stat-trend neutral">Всего в турнире</div>
-                    </div>
-                    <div class="stat-card">
-                        <h4>Команд</h4>
-                        <div class="stat-value" id="statTeams">5</div>
-                        <div class="stat-trend neutral">Всего команд</div>
-                    </div>
-                    <div class="stat-card">
-                        <h4>Обновлений</h4>
-                        <div class="stat-value" id="statUpdates">0</div>
-                        <div class="stat-trend neutral">Сегодня</div>
-                    </div>
-                    <div class="stat-card">
-                        <h4>Активность</h4>
-                        <div class="stat-value" id="statActivity">—</div>
-                        <div class="stat-trend neutral">Последняя активность</div>
-                    </div>
-                </div>
-                
-                <div class="version-info">
-                    Версия системы: 2.1 | Турнир "Вихрь" © 2024 | Режим: <strong>ОНЛАЙН-ПРОСМОТР</strong>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -855,9 +384,7 @@
         const REPO = 'azm197414/turnirvihr';
         const DATA_FILE = 'turnir_data.json';
         const DATA_URL = `https://raw.githubusercontent.com/${REPO}/main/${DATA_FILE}`;
-        const UPDATE_INTERVAL = 30000; // 30 секунд
-        const VERSION = '2.1';
-        
+
         // ========== ДАННЫЕ УЧАСТНИКОВ ==========
         const participants = [
             { team: "Интенсив", name: "Ксения Л.", id: 1, teamIndex: 0 },
@@ -872,150 +399,7 @@
             { team: "Мотивация", name: "Данила Л.", id: 10, teamIndex: 4 }
         ];
 
-        // ========== ПЕРЕМЕННЫЕ СОСТОЯНИЯ ==========
-        let lastUpdateTimestamp = null;
-        let updateInterval = null;
-        let isOnline = navigator.onLine;
-        let updateCount = 0;
-        let countdownInterval = null;
-        let countdownValue = UPDATE_INTERVAL / 1000;
-        let startTime = Date.now();
-        let lastDataHash = null;
-
         // ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
-        function showNotification(message, type = 'info', duration = 3000) {
-            const notification = document.getElementById('notification');
-            notification.textContent = message;
-            notification.className = `notification ${type}`;
-            notification.style.display = 'block';
-            
-            // Удаляем предыдущий таймер
-            if (notification.timeoutId) {
-                clearTimeout(notification.timeoutId);
-            }
-            
-            // Устанавливаем новый таймер
-            notification.timeoutId = setTimeout(() => {
-                notification.style.animation = 'slideOut 0.3s ease-out';
-                setTimeout(() => {
-                    notification.style.display = 'none';
-                    notification.style.animation = '';
-                }, 300);
-            }, duration);
-        }
-
-        function showLoading(show, text = 'Загрузка данных...', subtext = '') {
-            const overlay = document.getElementById('loadingOverlay');
-            const textElement = document.getElementById('loadingText');
-            const subtextElement = document.getElementById('loadingSubtext');
-            
-            textElement.textContent = text;
-            subtextElement.textContent = subtext;
-            
-            if (show) {
-                overlay.style.display = 'flex';
-                setTimeout(() => {
-                    overlay.style.opacity = '1';
-                }, 10);
-            } else {
-                overlay.style.opacity = '0';
-                setTimeout(() => {
-                    overlay.style.display = 'none';
-                }, 300);
-            }
-        }
-
-        function updateConnectionStatus() {
-            const statusElement = document.getElementById('connectionStatus');
-            const textElement = document.getElementById('connectionText');
-            const dotElement = statusElement.querySelector('.status-dot');
-            const systemStatus = document.getElementById('systemConnectionStatus');
-            
-            if (isOnline) {
-                statusElement.className = 'connection-status online';
-                textElement.textContent = 'Соединение установлено';
-                dotElement.className = 'status-dot online';
-                systemStatus.textContent = 'Онлайн';
-                systemStatus.className = 'status-value good';
-            } else {
-                statusElement.className = 'connection-status offline';
-                textElement.textContent = 'Нет соединения';
-                dotElement.className = 'status-dot offline';
-                systemStatus.textContent = 'Оффлайн';
-                systemStatus.className = 'status-value error';
-                
-                if (!document.hidden) {
-                    showNotification('Отсутствует подключение к интернету', 'error', 5000);
-                }
-            }
-        }
-
-        function updateDataAgeIndicator() {
-            if (!lastUpdateTimestamp) return;
-            
-            const ageElement = document.getElementById('dataAge');
-            const now = Date.now();
-            const age = Math.floor((now - lastUpdateTimestamp) / 1000);
-            const minutes = Math.floor(age / 60);
-            const seconds = age % 60;
-            
-            let text, className;
-            
-            if (age < 30) {
-                text = `только что`;
-                className = 'fresh';
-            } else if (age < 60) {
-                text = `${age} сек назад`;
-                className = 'fresh';
-            } else if (age < 300) {
-                text = `${minutes} мин назад`;
-                className = 'fresh';
-            } else if (age < 600) {
-                text = `${minutes} мин назад`;
-                className = 'stale';
-            } else {
-                text = `${minutes} мин назад`;
-                className = 'old';
-            }
-            
-            ageElement.textContent = text;
-            ageElement.className = `data-age ${className}`;
-        }
-
-        function updateUptime() {
-            const now = Date.now();
-            const uptime = Math.floor((now - startTime) / 1000);
-            const hours = Math.floor(uptime / 3600);
-            const minutes = Math.floor((uptime % 3600) / 60);
-            const seconds = uptime % 60;
-            
-            document.getElementById('systemUptime').textContent = 
-                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        }
-
-        function startCountdown() {
-            if (countdownInterval) {
-                clearInterval(countdownInterval);
-            }
-            
-            countdownValue = UPDATE_INTERVAL / 1000;
-            document.getElementById('countdown').textContent = countdownValue;
-            
-            countdownInterval = setInterval(() => {
-                countdownValue--;
-                if (countdownValue <= 0) {
-                    countdownValue = UPDATE_INTERVAL / 1000;
-                }
-                document.getElementById('countdown').textContent = countdownValue;
-            }, 1000);
-        }
-
-        function calculateDataHash(data) {
-            // Простая хеш-функция для определения изменений в данных
-            return JSON.stringify(data);
-        }
-
-        // ========== ВРЕМЕННЫЕ ФУНКЦИИ ==========
         function timeToSeconds(timeStr) {
             if (!timeStr || timeStr === '00:00:00') return 0;
             const parts = timeStr.split(':');
@@ -1033,6 +417,21 @@
             const secs = Math.floor(seconds % 60);
             const ms = Math.round((seconds - Math.floor(seconds)) * 100);
             return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}:${ms.toString().padStart(2, '0')}`;
+        }
+
+        function formatTimeInput(input) {
+            let value = input.value.trim();
+            if (!value) {
+                input.value = '00:00:00';
+                return;
+            }
+            value = value.replace(/[^\d]/g, '');
+            while (value.length < 6) value = '0' + value;
+            value = value.substring(0, 6);
+            const minutes = value.substring(0, 2);
+            const seconds = value.substring(2, 4);
+            const milliseconds = value.substring(4, 6);
+            input.value = `${minutes}:${seconds}:${milliseconds}`;
         }
 
         // ========== СОЗДАНИЕ ТАБЛИЦЫ ==========
@@ -1198,108 +597,30 @@
         }
 
         // ========== ЗАГРУЗКА ДАННЫХ ==========
-        async function loadTournamentData(manual = false) {
-            if (!isOnline) {
-                showNotification('Нет подключения к интернету', 'error', 5000);
-                return false;
-            }
-            
-            if (manual) {
-                showLoading(true, 'Обновление данных...', 'Проверяем обновления на сервере');
-                document.getElementById('manualRefresh').classList.add('loading');
-                document.getElementById('connectionStatus').className = 'connection-status syncing';
-                document.getElementById('connectionStatus').querySelector('.status-dot').className = 'status-dot syncing';
-                document.getElementById('connectionText').textContent = 'Синхронизация...';
-            }
-            
+        async function loadTournamentData() {
             try {
-                const response = await fetch(DATA_URL + '?t=' + Date.now(), {
-                    headers: {
-                        'Cache-Control': 'no-cache',
-                        'Pragma': 'no-cache'
-                    },
-                    mode: 'cors'
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`Ошибка сервера: ${response.status}`);
-                }
+                const response = await fetch(DATA_URL + '?t=' + Date.now());
+                if (!response.ok) throw new Error('Файл не найден');
                 
                 const data = await response.json();
-                const newDataHash = calculateDataHash(data);
+                updateTable(data);
                 
-                // Проверяем, изменились ли данные
-                let dataChanged = true;
-                if (lastDataHash && newDataHash === lastDataHash) {
-                    dataChanged = false;
-                    if (manual) {
-                        showNotification('Данные уже актуальны', 'info', 2000);
-                    }
-                }
-                
-                lastDataHash = newDataHash;
-                
-                // Обновляем таблицу только если данные изменились
-                if (dataChanged) {
-                    updateTable(data);
-                    updateCount++;
-                    
-                    // Обновляем статистику
-                    document.getElementById('statUpdates').textContent = updateCount;
-                    const now = new Date();
-                    const timeStr = now.toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'});
-                    document.getElementById('statActivity').textContent = timeStr;
-                    document.getElementById('statActivity').parentElement.querySelector('.stat-trend').className = 'stat-trend up';
-                }
-                
-                lastUpdateTimestamp = Date.now();
                 const now = new Date();
-                
                 document.getElementById('updateTime').textContent = now.toLocaleTimeString('ru-RU');
-                document.getElementById('systemLastSyncTime').textContent = now.toLocaleString('ru-RU');
-                document.getElementById('systemServerStatus').textContent = 'Активен';
-                document.getElementById('systemServerStatus').className = 'status-value good';
                 document.getElementById('dataInfo').textContent = `✅ Данные загружены: ${now.toLocaleString('ru-RU')}`;
-                
-                updateDataAgeIndicator();
-                
-                if (manual && dataChanged) {
-                    showNotification('Данные успешно обновлены', 'success', 2000);
-                }
-                
+                    
                 return true;
-                
             } catch (error) {
-                console.error('Ошибка загрузки:', error);
-                
-                if (manual) {
-                    showNotification('Ошибка при загрузке данных', 'error', 3000);
-                } else {
-                    document.getElementById('dataInfo').textContent = '⏳ Ожидание данных турнира...';
-                }
-                
-                document.getElementById('systemServerStatus').textContent = 'Ошибка подключения';
-                document.getElementById('systemServerStatus').className = 'status-value error';
-                
+                document.getElementById('dataInfo').textContent = '⏳ Турнир ещё не начался или данные не загружены';
+                console.warn('Ошибка загрузки:', error);
                 return false;
-            } finally {
-                if (manual) {
-                    setTimeout(() => {
-                        showLoading(false);
-                        document.getElementById('manualRefresh').classList.remove('loading');
-                        updateConnectionStatus();
-                    }, 500);
-                }
             }
         }
 
         function updateTable(data) {
-            let hasData = false;
-            
             for (let i = 0; i < participants.length; i++) {
                 const pData = data[`participant_${i}`];
                 if (pData) {
-                    hasData = true;
                     document.getElementById(`angle_${i}`).textContent = pData.angle || '0';
                     document.getElementById(`time_lz_${i}`).textContent = pData.timeLz || '00:00:00';
                     document.getElementById(`time_kz_${i}`).textContent = pData.timeKz || '00:00:00';
@@ -1310,110 +631,26 @@
                 }
             }
             
-            if (hasData) {
-                calculateAll();
-            }
+            calculateAll();
         }
 
-        // ========== ОБРАБОТЧИКИ СОБЫТИЙ ==========
-        function setupEventListeners() {
-            // Кнопка ручного обновления
-            document.getElementById('manualRefresh').addEventListener('click', () => {
-                loadTournamentData(true);
-                startCountdown(); // Сброс счетчика
-            });
-            
-            // Отслеживание состояния сети
-            window.addEventListener('online', () => {
-                isOnline = true;
-                updateConnectionStatus();
-                showNotification('Соединение восстановлено', 'success', 3000);
-                loadTournamentData();
-            });
-            
-            window.addEventListener('offline', () => {
-                isOnline = false;
-                updateConnectionStatus();
-            });
-            
-            // Обновление времени работы
-            setInterval(updateUptime, 1000);
-            
-            // Периодическое обновление возраста данных
-            setInterval(updateDataAgeIndicator, 30000);
-            
-            // Обновление при возвращении на вкладку
-            document.addEventListener('visibilitychange', () => {
-                if (!document.hidden && isOnline) {
-                    // При возвращении на вкладку сразу обновляем данные
-                    loadTournamentData();
-                    startCountdown();
-                }
-            });
-        }
-
-        // ========== ИНИЦИАЛИЗАЦИЯ ==========
+        // ========== ЗАПУСК ==========
         document.addEventListener('DOMContentLoaded', function() {
-            // Начальная настройка статистики
-            document.getElementById('statParticipants').textContent = participants.length;
-            document.getElementById('statTeams').textContent = new Set(participants.map(p => p.team)).size;
-            
-            // Создание таблицы
             createTable();
+            loadTournamentData();
             
-            // Настройка обработчиков событий
-            setupEventListeners();
-            
-            // Начальная загрузка данных с анимацией
-            showLoading(true, 'Загрузка турнирной таблицы', 'Подключаемся к серверу данных...');
-            
-            setTimeout(() => {
-                loadTournamentData().then(success => {
-                    showLoading(false);
-                    if (success) {
-                        // Запуск автообновления
-                        updateInterval = setInterval(() => {
-                            loadTournamentData();
-                            startCountdown(); // Перезапуск счетчика после автообновления
-                        }, UPDATE_INTERVAL);
-                        
-                        // Запуск счетчика
-                        startCountdown();
-                    } else {
-                        showNotification('Не удалось загрузить начальные данные', 'warning', 5000);
-                        // Все равно запускаем автообновление
-                        updateInterval = setInterval(() => {
-                            loadTournamentData();
-                        }, UPDATE_INTERVAL);
-                        startCountdown();
-                    }
-                });
-            }, 800);
-            
-            // Обновление статуса соединения
-            updateConnectionStatus();
+            // Автообновление каждые 30 секунд
+            setInterval(loadTournamentData, 30000);
             
             // Защита от редактирования
             console.log('%c 🔒 РЕЖИМ ПРОСМОТРА 🔒', 'color: #2c3e50; font-size: 16px; font-weight: bold;');
             console.log('Таблица доступна только для просмотра.');
-            console.log(`Версия системы: ${VERSION}`);
             
+            // Блокируем контекстное меню
             document.addEventListener('contextmenu', function(e) {
                 e.preventDefault();
-                showNotification('Контекстное меню отключено в режиме просмотра', 'info', 2000);
                 return false;
             });
-            
-            // Блокировка выделения текста в таблице
-            document.addEventListener('selectstart', function(e) {
-                if (e.target.closest('.tournament-table')) {
-                    e.preventDefault();
-                    return false;
-                }
-            });
-            
-            // Информация о версии
-            console.log(`Турнир "Вихрь" | Онлайн-просмотр v${VERSION} | Участников: ${participants.length}`);
         });
     </script>
 </body>
